@@ -273,7 +273,7 @@ namespace kIRCPlugin
                         string playerlist = "";
                         for(int i = 0; i < Steam.Players.Count; i++)
                         {
-                            playerlist += Steam.Players[i].m.CharacterName/* + ", "*/;
+                            playerlist += Steam.Players[i].SteamPlayerID.CharacterName/* + ", "*/;
                             if (i != (Steam.Players.Count - 1))
                                 playerlist += ", ";
                         }
@@ -459,7 +459,8 @@ namespace kIRCPlugin
                     }
                     else if (cmd == "save" && IsAdmin(user))
                     {
-                        InputText myinputtext = Steam.ConsoleInput.onInputText;
+                        unturnedclass.do_save = true;
+                        /*InputText myinputtext = Steam.ConsoleInput.onInputText;
 
                         // Getting response from console
                         var stdout = Console.Out;
@@ -471,8 +472,8 @@ namespace kIRCPlugin
                         this.Say(this._channel, "Save response: " + stdoutresponse);
                         tmpstdout.Flush();
                         Console.SetOut(stdout);
-                        Console.WriteLine(stdoutresponse/* + "\r\n"*/);
-                        RocketChat.Say("[IRC] Server settings, Player items saved!");
+                        Console.WriteLine(stdoutresponse);
+                        RocketChat.Say("[IRC] Server settings, Player items saved!");*/
                     }
                     else if (cmd == "shutdown" && IsAdmin(user))
                     {

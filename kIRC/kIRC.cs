@@ -27,8 +27,11 @@ namespace kIRCPlugin
 
         public Dictionary<string, byte> _playershealth = new Dictionary<string, byte>();
 
+        public bool do_save;
+
         protected override void Load()
         {
+            do_save = false;
             if(this.Configuration.server == "EDITME")
             {
                 Rocket.Unturned.RocketConsole.print("kIRC Error: You did not configure the plugin! Unloading now...");
@@ -128,6 +131,24 @@ namespace kIRCPlugin
             if (!this.Loaded)
                 return;
             //myirc.parse(myirc.Read(), this); // Made a thread instead :(
+            if(do_save == true)
+            {
+                InputText myinputtext = Steam.ConsoleInput.onInputText;
+
+                // Getting response from console
+                var stdout = Console.Out;
+                string stdoutresponse = "";
+                StringWriter tmpstdout = new StringWriter();
+                Console.SetOut(tmpstdout);
+                myinputtext("save");
+                stdoutresponse = tmpstdout.ToString();
+                myirc.Say(myirc._channel, "Save response: " + stdoutresponse);
+                tmpstdout.Flush();
+                Console.SetOut(stdout);
+                Console.WriteLine(stdoutresponse);
+                RocketChat.Say("[IRC] Server settings, Player items saved!");
+                do_save = false;
+            }
         }
 
         private void Unturned_OnPlayerChatted(RocketPlayer player, ref Color color, string message)
