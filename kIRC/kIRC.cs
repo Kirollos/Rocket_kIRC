@@ -94,6 +94,8 @@ namespace kIRCPlugin
                 myirc.SetParameterDelimiter('/');
             }
 
+            myirc.SetAllowAdminOwner(this.Configuration.allow_adminowner);
+
             ircthread = new Thread( () => myirc.loopparsing(this));
             ircthread.Start();
 
@@ -210,6 +212,7 @@ namespace kIRCPlugin
             command_prefix,
             parameter_delimiter
             ;
+        public bool allow_adminowner;
 
         public IRocketPluginConfiguration DefaultConfiguration
         {
@@ -225,7 +228,8 @@ namespace kIRCPlugin
                     password = "EDITME OR LEAVE IT BLANK",
                     channel = "#EDITME",
                     command_prefix = "!",
-                    parameter_delimiter = "/"
+                    parameter_delimiter = "/",
+                    allow_adminowner = true
                 };
             }
         }

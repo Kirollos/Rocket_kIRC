@@ -37,6 +37,8 @@ namespace kIRCPlugin
         private ASCIIEncoding _encoding;
         public List<string[]> userlist = new List<string[]>();
 
+        public bool allow_adminowner;
+
         private bool __NAMES = false;
 
         public bool isConnected = false;
@@ -188,11 +190,21 @@ namespace kIRCPlugin
             {
                 string user = prefix.Split('!')[0];
                 RocketChat.Say("[IRC JOIN] "+ user +" has joined IRC channel.", Color.gray);
+                this.userlist.Add(new[] { user, "" });
             }
             else if(command == "PART")
             {
                 string user = prefix.Split('!')[0];
                 RocketChat.Say("[IRC PART] " + user + " has left IRC channel.", Color.gray);
+                
+                for(int i = 0; i < this.userlist.Count; i++)
+                {
+                    if(this.userlist[i][0] == user)
+                    {
+                        this.userlist.Remove(new[] { user, this.userlist[i][1]});
+                        break;
+                    }
+                }
             }
             if (command == "366")
             { // End of /NAMES
@@ -510,7 +522,10 @@ namespace kIRCPlugin
             {
                 if (this.userlist[i][0] == name)
                 {
-                    return userlist[i][1] == "~";
+                    if (this.allow_adminowner)
+                        return userlist[i][1] == "~";
+                    else
+                        return userlist[i][1] == "@";
                 }
             }
             return false;
@@ -522,7 +537,10 @@ namespace kIRCPlugin
             {
                 if (this.userlist[i][0] == name)
                 {
-                    return userlist[i][1] == "&" || userlist[i][1] == "~";
+                    if (this.allow_adminowner)
+                        return userlist[i][1] == "&" || userlist[i][1] == "~";
+                    else
+                        return userlist[i][1] == "@";
                 }
             }
             return false;
@@ -534,7 +552,10 @@ namespace kIRCPlugin
             {
                 if (this.userlist[i][0] == name)
                 {
-                    return userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
+                    if (this.allow_adminowner)
+                        return userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
+                    else
+                        return userlist[i][1] == "%" || userlist[i][1] == "@";
                 }
             }
             return false;
@@ -546,7 +567,10 @@ namespace kIRCPlugin
             {
                 if (this.userlist[i][0] == name)
                 {
-                    return userlist[i][1] == "%" || userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
+                    if (this.allow_adminowner)
+                        return userlist[i][1] == "%" || userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
+                    else
+                        return userlist[i][1] == "%" || userlist[i][1] == "@";
                 }
             }
             return false;
@@ -558,7 +582,10 @@ namespace kIRCPlugin
             {
                 if (this.userlist[i][0] == name)
                 {
-                    return userlist[i][1] == "+" || userlist[i][1] == "%" || userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
+                    if (this.allow_adminowner)
+                        return userlist[i][1] == "+" || userlist[i][1] == "%" || userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
+                    else
+                        return userlist[i][1] == "+" || userlist[i][1] == "%" || userlist[i][1] == "@";
                 }
             }
             return false;
@@ -572,6 +599,11 @@ namespace kIRCPlugin
         public void SetParameterDelimiter(char delimiter)
         {
             this._parameter_delimiter = delimiter;
+        }
+
+        public void SetAllowAdminOwner(bool allow)
+        {
+            this.allow_adminowner = allow;
         }
 
         public void SendSyntax(string channel, string command, string[] parameters)
