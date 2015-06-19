@@ -167,8 +167,8 @@ namespace kIRCPlugin
                     this.__NAMES = true;
                     this.userlist.Clear();
                 }
-
-                string[] _userlist = trailing.Split(' ');
+                
+                string[] _userlist = trailing.Trim().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < _userlist.Length; i++)
                 {
                     string lerank = Convert.ToString(_userlist[i][0]);
@@ -247,26 +247,26 @@ namespace kIRCPlugin
                             return;
                         }
                         this.Say(this._channel, "====Unturned IRC Commands====");
-                        this.Say(this._channel, this._command_prefix+"help => This command");
-                        this.Say(this._channel, this._command_prefix + "say <text> => Send a message to ingame users");
-                        this.Say(this._channel, this._command_prefix + "players => Shows a list of online players");
-                        this.Say(this._channel, this._command_prefix + "pm => Sends a personal message to a specific player");
+                        this.Say(this._channel, "- " + this._command_prefix+"help => This command");
+                        this.Say(this._channel, "- " + this._command_prefix + "say <text> => Send a message to ingame users");
+                        this.Say(this._channel, "- " + this._command_prefix + "players => Shows a list of online players");
+                        this.Say(this._channel, "- " + this._command_prefix + "pm => Sends a personal message to a specific player");
                         if (IsHalfOp(user))
                         {
-                            this.Say(this._channel, this._command_prefix + "info <player name> => Show information about given username");
-                            this.Say(this._channel, this._command_prefix + "broadcast <text> => Sends a broadcast to the players");
+                            this.Say(this._channel, "- " + this._command_prefix + "info <player name> => Show information about given username");
+                            this.Say(this._channel, "- " + this._command_prefix + "broadcast <text> => Sends a broadcast to the players");
                         }
                         if (IsOp(user))
                         {
-                            this.Say(this._channel, this._command_prefix + "kick <player name> <reason> => Kicks a player from the server with a given reason");
+                            this.Say(this._channel, "- " + this._command_prefix + "kick <player name> <reason> => Kicks a player from the server with a given reason");
                         }
                         if (IsAdmin(user))
                         {
-                            this.Say(this._channel, this._command_prefix + "ban <player name|SteamID> <duration in seconds> <reason> => Bans a player from the server with a given duration and reason");
-                            this.Say(this._channel, this._command_prefix + "unban <SteamID> => Unbans a player from the server with a given SteamID");
-                            this.Say(this._channel, this._command_prefix + "bans => Shows ban list");
-                            this.Say(this._channel, this._command_prefix + "save => Saves the game data.");
-                            this.Say(this._channel, this._command_prefix + "shutdown => shuts down the server.");
+                            this.Say(this._channel, "- " + this._command_prefix + "ban <player name|SteamID> <duration in seconds> <reason> => Bans a player from the server with a given duration and reason");
+                            this.Say(this._channel, "- " + this._command_prefix + "unban <SteamID> => Unbans a player from the server with a given SteamID");
+                            this.Say(this._channel, "- " + this._command_prefix + "bans => Shows ban list");
+                            this.Say(this._channel, "- " + this._command_prefix + "save => Saves the game data.");
+                            this.Say(this._channel, "- " + this._command_prefix + "shutdown => shuts down the server.");
                         }
                         this.Say(this._channel, "=============================");
                     }
