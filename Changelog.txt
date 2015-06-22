@@ -1,0 +1,19 @@
+V1.0:
+
+- Initial release.
+
+V1.1:
+
+- Bug fixes.
+
+V1.2:
+
+- Recompiled with latest rocket dlls.
+- Added “allow_adminowner” in the configuration file for networks that don’t support +qa (~ and &).
+
+V1.5:
+- NOTICE: It's better to delete the configuration and let the plugin re-generate the configuration
+- Added death event.
+- Added alias "/irc" for in-game command "/ircpm"
+- Added custom commands (check the configuration)
+- Added perform commands to be executed when the bot connects

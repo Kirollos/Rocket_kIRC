@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kIRCConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <server>EDITME</server> <!-- the IRC server -->
+  <port>6667</port> <!-- the IRC port -->
+  <nick>EDITME</nick> <!-- the bot's nickname -->
+  <user>EDITME</user> <!-- the bot's ident name -->
+  <realname>EDITME</realname> <!-- the bot's real name -->
+  <password></password> <!-- the bot's nickserv password (leave it blank for none) -->
+  <channel>#EDITME</channel> <!-- The channel you are targetting the bot to (Only one channel is allowed at the moment) -->
+  <command_prefix>!</command_prefix> <!-- The command prefix (Default: !, Example: !help -->
+  <parameter_delimiter>/</parameter_delimiter> <!-- The command parameters delimiter (splitter) (Default: /, Example: !kick datnamedoe/datreason) -->
+  <allow_adminowner>true</allow_adminowner> <!-- true=If your IRC network supports +qa (~ and &) | false= If otherwise. (Since V1.2)-->
+  <deathevent>true</deathevent> <!-- true=If you want to send death messages to the IRC channel. false= If otherwise. (Since V1.5)-->
+  <perform> <!-- Perform those commands after the bot connects to the network (can be left blank) (Since V1.5)-->
+    <Perform>PRIVMSG #somechannel :I am a bot (EXAMPLE PERFORM)</Perform>
+	<Perform>NOTICE #somechannel :hyyy</Perform>
+  </perform>
+  <ccommands> <!-- Custom commands, Allows you to add your own console commands. (Since V1.5)-->
+    <CCommand BotCommand="experience"> <!-- Define the command, with the bot name (without prefix) -->
+      <ConsoleCommand>experience {0} {1}</ConsoleCommand> <!-- The console command to be executed (you can add parameter values) -->
+      <BotSyntax> </BotSyntax> <!-- Syntax to be sent to IRC !help -->
+      <FlagNeeded>o</FlagNeeded> <!-- Permission needed to access this command (q for ~, a for &, o for @, h for %, v for + and blank for every one -->
+      <IRCmsg_onfire> </IRCmsg_onfire> <!-- A message to be sent to IRC channel when the user executes the command (blank for no message) -->
+      <GAMEmsg_onfire> </GAMEmsg_onfire> <!-- A message to be sent to In-Game chat when the user executes the command (blank for no message) -->
+      <IRCmsg_onexec> </IRCmsg_onexec> <!-- A message to be sent to IRC channel when the command has finished it's execution (blank for no message) -->
+      <GAMEmsg_onexec> </GAMEmsg_onexec> <!-- A message to be sent to In-Game chat when the command has finished it's execution (blank for no message) -->
+      <printresponse>true</printresponse> <!-- true= If you want to print the response from console, false= If otherwise. -->
+    </CCommand>
+  </ccommands>
+</kIRCConfig>
