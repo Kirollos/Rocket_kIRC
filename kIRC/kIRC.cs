@@ -11,6 +11,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 using Rocket.API;
 using Rocket.Unturned;
 using Rocket.Unturned.Plugins;
@@ -27,11 +28,11 @@ namespace kIRCPlugin
 
         public Dictionary<string, byte> _playershealth = new Dictionary<string, byte>();
 
-        public bool do_save;
+        public List<kIRC_PushCommand> do_command;
 
         protected override void Load()
         {
-            do_save = false;
+            this.do_command = new List<kIRC_PushCommand>();
             if(this.Configuration.server == "EDITME")
             {
                 Rocket.Unturned.RocketConsole.print("kIRC Error: You did not configure the plugin! Unloading now...");
@@ -95,6 +96,8 @@ namespace kIRCPlugin
             }
 
             myirc.SetAllowAdminOwner(this.Configuration.allow_adminowner);
+            myirc.cperform = this.Configuration.perform;
+            myirc.SetCustomCommands(this.Configuration.ccommands);
 
             ircthread = new Thread( () => myirc.loopparsing(this));
             ircthread.Start();
@@ -103,21 +106,21 @@ namespace kIRCPlugin
             Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerChatted += Unturned_OnPlayerChatted;
             Rocket.Unturned.Events.RocketServerEvents.OnPlayerConnected += Unturned_OnPlayerConnected;
             Rocket.Unturned.Events.RocketServerEvents.OnPlayerDisconnected += Unturned_OnPlayerDisconnected;
-            //Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerDeath += Unturned_OnPlayerDeath;
+            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerDeath += Unturned_OnPlayerDeath;
             Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerUpdateHealth += Unturned_OnPlayerUpdateHealth;
         }
 
         protected override void Unload()
         {
+            do_command.Clear();
             myirc.Destruct();
-            //ircthread.Join();
             ircthread.Abort();
             // Rocket unload/reload does not clear this anyway...
             Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown -= Unturned_OnServerShutdown;
             Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerChatted -= Unturned_OnPlayerChatted;
             Rocket.Unturned.Events.RocketServerEvents.OnPlayerConnected -= Unturned_OnPlayerConnected;
             Rocket.Unturned.Events.RocketServerEvents.OnPlayerDisconnected -= Unturned_OnPlayerDisconnected;
-            //Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerDeath -= Unturned_OnPlayerDeath;
+            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerDeath -= Unturned_OnPlayerDeath;
             Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerUpdateHealth -= Unturned_OnPlayerUpdateHealth;
             _playershealth.Clear();
         }
@@ -133,23 +136,48 @@ namespace kIRCPlugin
             if (!this.Loaded)
                 return;
             //myirc.parse(myirc.Read(), this); // Made a thread instead :(
-            if(do_save == true)
+            
+            if(this.do_command.Count > 0)
             {
-                InputText myinputtext = Steam.ConsoleInput.onInputText;
+                for(int i = 0; i < this.do_command.Count; i++)
+                {
+                    kIRC_PushCommand reff = this.do_command[i];
 
-                // Getting response from console
-                var stdout = Console.Out;
-                string stdoutresponse = "";
-                StringWriter tmpstdout = new StringWriter();
-                Console.SetOut(tmpstdout);
-                myinputtext("save");
-                stdoutresponse = tmpstdout.ToString();
-                myirc.Say(myirc._channel, "Save response: " + stdoutresponse);
-                tmpstdout.Flush();
-                Console.SetOut(stdout);
-                Console.WriteLine(stdoutresponse);
-                RocketChat.Say("[IRC] Server settings, Player items saved!");
-                do_save = false;
+                    if (!reff.execute)
+                        continue;
+
+                    InputText myinputtext = Steam.ConsoleInput.onInputText;
+
+                    reff.onfireev();
+                    // Getting response from console
+                    var stdout = Console.Out;
+                    string stdoutresponse = "";
+                    StringWriter tmpstdout = new StringWriter();
+                    Console.SetOut(tmpstdout);
+                    if (reff.parameters.Length > 0)
+                    {
+                        try
+                        {
+                            myinputtext(String.Format(reff.command, reff.parameters));
+                        }
+                        catch (Exception)
+                        {
+                            myirc.Say(myirc._channel, "Error: Parameters do not match!\nSyntax: "+myirc._command_prefix+reff.command.Split(new string[]{" "}, StringSplitOptions.RemoveEmptyEntries)[0]+" "+reff.extradata["Syntax"]);
+                        }
+                        //myinputtext(String.Format(reff.command, reff.parameters));
+                    }
+                    else
+                        myinputtext(reff.command);
+
+                    stdoutresponse = tmpstdout.ToString();
+                    tmpstdout.Flush();
+                    Console.SetOut(stdout);
+                    Console.WriteLine(stdoutresponse);
+
+                    reff.onexecev(stdoutresponse);
+                    this.do_command.Remove(this.do_command[i]);
+                    break;
+                }
             }
         }
 
@@ -177,12 +205,17 @@ namespace kIRCPlugin
             }
         }
 
-        /*private void Unturned_OnPlayerDeath(RocketPlayer player, EDeathCause cause, ELimb limb, Steamworks.CSteamID murderer)
+        private void Unturned_OnPlayerDeath(RocketPlayer player, EDeathCause cause, ELimb limb, Steamworks.CSteamID murderer)
         {
             if (!myirc.isConnected) return;
-            //myirc.Send("PRIVMSG " + myirc._channel + " :[DEATH] " + player.CharacterName + " has died! (Cause:"+cause+", Limb:"+limb+", murderer:"+(murderer != null ? RocketPlayer.FromCSteamID(murderer).CharacterName : "Unknown")+")");
-            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died! (Cause:" + cause + ", Limb:" + limb + ", murderer:" + (murderer != null ? RocketPlayer.FromCSteamID(murderer).CharacterName : "Unknown") + ")");
-        }*/
+            if (Configuration.deathevent)
+            {
+                if(RocketPlayer.FromCSteamID(murderer) != null)
+                    myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by "+RocketPlayer.FromCSteamID(murderer).CharacterName+". (Cause:" + cause + ", Limb:" + limb + ")");
+                else
+                    myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died.");
+            }
+        }
 
         private void Unturned_OnPlayerUpdateHealth(RocketPlayer player, byte health)
         {
@@ -197,41 +230,5 @@ namespace kIRCPlugin
             }
         }
 
-    }
-
-    public class kIRCConfig : IRocketPluginConfiguration
-    {
-        public string server;
-        public int port;
-        public string
-            nick,
-            user,
-            realname,
-            password,
-            channel,
-            command_prefix,
-            parameter_delimiter
-            ;
-        public bool allow_adminowner;
-
-        public IRocketPluginConfiguration DefaultConfiguration
-        {
-            get
-            {
-                return new kIRCConfig()
-                {
-                    server = "EDITME",
-                    port = 6667,
-                    nick = "EDITME",
-                    user = "EDITME",
-                    realname = "EDITME",
-                    password = "EDITME OR LEAVE IT BLANK",
-                    channel = "#EDITME",
-                    command_prefix = "!",
-                    parameter_delimiter = "/",
-                    allow_adminowner = true
-                };
-            }
-        }
     }
 }

@@ -11,6 +11,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 using Rocket.API;
 using Rocket.Unturned;
 using Rocket.Unturned.Plugins;
@@ -42,6 +43,9 @@ namespace kIRCPlugin
         private bool __NAMES = false;
 
         public bool isConnected = false;
+
+        public List<CPerform> cperform;
+        public List<kIRC_Commands> custom_commands;
 
         public kIRCCore(string host, int port, string nick, string user, string realname, string channel, string password)
         {
@@ -102,13 +106,17 @@ namespace kIRCPlugin
 
         public void Say(string target, string text)
         {
-            this.Send("PRIVMSG " + target + " :" + text);
+            string[] splitted_text = text.Split(new string[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < splitted_text.Length; i++)
+                this.Send("PRIVMSG " + target + " :" + /*text*/splitted_text[i]);
             return;
         }
 
         public void Notice(string target, string text)
         {
-            this.Send("NOTICE " + target + " :" + text);
+            string[] splitted_text = text.Split(new string[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < splitted_text.Length; i++)
+                this.Send("NOTICE " + target + " :" + /*text*/splitted_text[i]);
             return;
         }
 
@@ -157,6 +165,12 @@ namespace kIRCPlugin
                 if(!String.IsNullOrEmpty(this._password))
                     this.Say("NickServ", "IDENTIFY " + this._password);
                 this.Send("JOIN " + _channel);
+                // Perform
+                for(int i = 0; i < this.cperform.Count; i++)
+                {
+                    this.Send(this.cperform[i].pcommand);
+                }
+                // -------
             }
             if (command == "353")
             {
@@ -241,7 +255,7 @@ namespace kIRCPlugin
 
                     if (cmd == "help")
                     {
-                        if (!IsVoice(user))
+                        if (!IsVoice(user, false))
                         {
                             this.Say(this._channel, "Error: You need voice to use the commands.");
                             return;
@@ -251,26 +265,74 @@ namespace kIRCPlugin
                         this.Say(this._channel, "- " + this._command_prefix + "say <text> => Send a message to ingame users");
                         this.Say(this._channel, "- " + this._command_prefix + "players => Shows a list of online players");
                         this.Say(this._channel, "- " + this._command_prefix + "pm => Sends a personal message to a specific player");
-                        if (IsHalfOp(user))
+                        // Custom commands
+                        for(int i = 0; i < this.custom_commands.Count; i++)
+                        {
+                            if(this.custom_commands[i].FlagNeeded == "v" || this.custom_commands[i].FlagNeeded == "")
+                            {
+                                this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                            }
+                        }
+                        // ---------------
+                        if (IsHalfOp(user, false))
                         {
                             this.Say(this._channel, "- " + this._command_prefix + "info <player name> => Show information about given username");
                             this.Say(this._channel, "- " + this._command_prefix + "broadcast <text> => Sends a broadcast to the players");
+                            // Custom commands
+                            for (int i = 0; i < this.custom_commands.Count; i++)
+                            {
+                                if (this.custom_commands[i].FlagNeeded == "h")
+                                {
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                }
+                            }
+                            // ---------------
                         }
-                        if (IsOp(user))
+                        if (IsOp(user, false))
                         {
                             this.Say(this._channel, "- " + this._command_prefix + "kick <player name> <reason> => Kicks a player from the server with a given reason");
+                            // Custom commands
+                            for (int i = 0; i < this.custom_commands.Count; i++)
+                            {
+                                if (this.custom_commands[i].FlagNeeded == "o")
+                                {
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                }
+                            }
+                            // ---------------
                         }
-                        if (IsAdmin(user))
+                        if (IsAdmin(user, false))
                         {
                             this.Say(this._channel, "- " + this._command_prefix + "ban <player name|SteamID> <duration in seconds> <reason> => Bans a player from the server with a given duration and reason");
                             this.Say(this._channel, "- " + this._command_prefix + "unban <SteamID> => Unbans a player from the server with a given SteamID");
                             this.Say(this._channel, "- " + this._command_prefix + "bans => Shows ban list");
                             this.Say(this._channel, "- " + this._command_prefix + "save => Saves the game data.");
                             this.Say(this._channel, "- " + this._command_prefix + "shutdown => shuts down the server.");
+                            // Custom commands
+                            for (int i = 0; i < this.custom_commands.Count; i++)
+                            {
+                                if (this.custom_commands[i].FlagNeeded == "a")
+                                {
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                }
+                            }
+                            // ---------------
+                        }
+                        if (IsOwner(user, false))
+                        {
+                            // Custom commands
+                            for (int i = 0; i < this.custom_commands.Count; i++)
+                            {
+                                if (this.custom_commands[i].FlagNeeded == "q")
+                                {
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                }
+                            }
+                            // ---------------
                         }
                         this.Say(this._channel, "=============================");
                     }
-                    else if (cmd == "say" && IsVoice(user))
+                    else if (cmd == "say" && IsVoice(user, false))
                     {
                         if(String.IsNullOrEmpty(msg))
                         {
@@ -280,7 +342,7 @@ namespace kIRCPlugin
                         }
                         RocketChat.Say("[IRC] " + user + ": " + msg, Color.yellow);
                     }
-                    else if (cmd == "players" && IsVoice(user))
+                    else if (cmd == "players" && IsVoice(user, false))
                     {
                         string playerlist = "";
                         for(int i = 0; i < Steam.Players.Count; i++)
@@ -291,7 +353,7 @@ namespace kIRCPlugin
                         }
                         this.Say(this._channel, "Connected Players[" + Steam.Players.Count + "/"+Steam.MaxPlayers+"]: " + playerlist);
                     }
-                    else if(cmd == "pm" && IsVoice(user))
+                    else if (cmd == "pm" && IsVoice(user, false))
                     {
                         if (msg.Split(this._parameter_delimiter).Length < 2)
                         {
@@ -313,7 +375,7 @@ namespace kIRCPlugin
                             }
                         }
                     }
-                    else if (cmd == "info" && IsHalfOp(user))
+                    else if (cmd == "info" && IsHalfOp(user, false))
                     {
                         if (String.IsNullOrEmpty(msg))
                         {
@@ -350,7 +412,7 @@ namespace kIRCPlugin
 
                         }
                     }
-                    else if (cmd == "broadcast" && IsHalfOp(user))
+                    else if (cmd == "broadcast" && IsHalfOp(user, false))
                     {
                         if (String.IsNullOrEmpty(msg))
                         {
@@ -360,7 +422,7 @@ namespace kIRCPlugin
                         }
                         RocketChat.Say("[IRC Broadcast]: " + msg, Color.red);
                     }
-                    else if (cmd == "kick" && IsOp(user))
+                    else if (cmd == "kick" && IsOp(user, false))
                     {
                         if (msg.Split(this._parameter_delimiter).Length < 2)
                         {
@@ -381,7 +443,7 @@ namespace kIRCPlugin
                             }
                         }
                     }
-                    else if (cmd == "ban" && IsAdmin(user))
+                    else if (cmd == "ban" && IsAdmin(user, false))
                     {
                         if (msg.Split(this._parameter_delimiter).Length < 3)
                         {
@@ -418,11 +480,22 @@ namespace kIRCPlugin
                             {
                                 this.Say(this._channel, "[SUCCESS] SteamID "+pname+" is banned.");
                             }
-                            InputText myinputtext = Steam.ConsoleInput.onInputText;
-                            myinputtext("ban " + pname + "/" + reason + "/" + durationstr + "");
+
+                            kIRC_PushCommand pcmd = new kIRC_PushCommand();
+                            pcmd.command = "ban {0}/{1}/{2}";
+                            pcmd.parameters = new string[] { pname, reason, durationstr };
+                            pcmd.onfire(() => { });
+                            pcmd.onexec((string response) => { });
+
+                            pcmd.execute = true;
+
+                            pcmd.push(unturnedclass); // Sends it to the main unturned thread
+
+                            /*InputText myinputtext = Steam.ConsoleInput.onInputText;
+                            myinputtext("ban " + pname + "/" + reason + "/" + durationstr + "");*/
                         }
                     }
-                    else if (cmd == "unban" && IsAdmin(user))
+                    else if (cmd == "unban" && IsAdmin(user, false))
                     {
                         if(String.IsNullOrEmpty(msg))
                         {
@@ -432,7 +505,20 @@ namespace kIRCPlugin
                         }
                         else
                         {
-                            InputText myinputtext = Steam.ConsoleInput.onInputText;
+
+                            kIRC_PushCommand pcmd = new kIRC_PushCommand();
+                            pcmd.command = "unban {0}";
+                            pcmd.parameters = new string[] { msg };
+                            pcmd.onfire(() => { } );
+                            pcmd.onexec((string response) => {
+                                this.Say(this._channel, "Unban response: " + response);
+                            });
+
+                            pcmd.execute = true;
+
+                            pcmd.push(unturnedclass); // Sends it to the main unturned thread
+
+                            /*InputText myinputtext = Steam.ConsoleInput.onInputText;
                             
                             // Getting response from console
                             var stdout = Console.Out;
@@ -444,12 +530,33 @@ namespace kIRCPlugin
                             this.Say(this._channel, "Unban response: " + stdoutresponse);
                             tmpstdout.Flush();
                             Console.SetOut(stdout);
-                            Console.WriteLine(stdoutresponse/* + "\r\n"*/);
+                            Console.WriteLine(stdoutresponse);*/
                         }
                     }
-                    else if (cmd == "bans" && IsAdmin(user))
+                    else if (cmd == "bans" && IsAdmin(user, false))
                     {
-                        this.Say(this._channel, user+": Response is sent to your query.");
+                        kIRC_PushCommand pcmd = new kIRC_PushCommand();
+                        pcmd.command = "bans";
+                        pcmd.parameters = new string[] { };
+                        pcmd.onfire(() => 
+                        {
+                            this.Say(this._channel, user + ": Response is sent to your query.");
+                        });
+                        pcmd.onexec((string response) =>
+                        {
+                            this.Say(user, "Response from bans:");
+                            string[] bans = response.Split('\n');
+                            for (int i = 0; i < bans.Length; i++)
+                            {
+                                this.Say(user, bans[i]);
+                            }
+                        });
+
+                        pcmd.execute = true;
+
+                        pcmd.push(unturnedclass); // Sends it to the main unturned thread
+
+                        /*this.Say(this._channel, user+": Response is sent to your query.");
                         InputText myinputtext = Steam.ConsoleInput.onInputText;
 
                         // Getting response from console
@@ -467,11 +574,28 @@ namespace kIRCPlugin
                         }
                         tmpstdout.Flush();
                         Console.SetOut(stdout);
-                        Console.WriteLine(stdoutresponse/* + "\r\n"*/);
+                        Console.WriteLine(stdoutresponse);*/
                     }
-                    else if (cmd == "save" && IsAdmin(user))
+                    else if (cmd == "save" && IsAdmin(user, false))
                     {
-                        unturnedclass.do_save = true;
+                        //unturnedclass.do_save = true;
+
+                        kIRC_PushCommand pcmd = new kIRC_PushCommand();
+                        pcmd.command = "save";
+                        pcmd.parameters = new string[] { };
+                        pcmd.onfire(() => {
+                            this.Say(this._channel, "Saving server settings...");
+                            RocketChat.Say("[IRC] Saving server settings...");
+                        });
+                        pcmd.onexec((string response) => {
+                            this.Say(this._channel, "Save response: " + response);
+                            RocketChat.Say("[IRC] Server settings, Player items saved!");
+                        });
+
+                        pcmd.execute = true;
+
+                        pcmd.push(unturnedclass); // Sends it to the main unturned thread
+
                         /*InputText myinputtext = Steam.ConsoleInput.onInputText;
 
                         // Getting response from console
@@ -487,9 +611,55 @@ namespace kIRCPlugin
                         Console.WriteLine(stdoutresponse);
                         RocketChat.Say("[IRC] Server settings, Player items saved!");*/
                     }
-                    else if (cmd == "shutdown" && IsAdmin(user))
+                    else if (cmd == "shutdown" && IsAdmin(user, false))
                     {
-                        InputText myinputtext = Steam.ConsoleInput.onInputText;
+                        kIRC_PushCommand pcmd = new kIRC_PushCommand();
+                        pcmd.command = "save";
+                        pcmd.parameters = new string[] { };
+                        pcmd.onfire(() =>
+                        {
+                            RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 5 SECONDS!", Color.red);
+                            this.Say(this._channel, "Shutting down in 5 seconds");
+                            Thread.Sleep(1000);
+                        });
+                        pcmd.onexec((string response) =>
+                        {
+                            RocketChat.Say("[IRC] Server settings, Player items saved!");
+
+                            kIRC_PushCommand pcmd2 = new kIRC_PushCommand();
+                            pcmd2.command = "shutdown";
+                            pcmd2.parameters = new string[] { };
+
+                            pcmd2.onfire(() => 
+                            {
+                                RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 4 SECONDS!", Color.red);
+                                this.Say(this._channel, "Shutting down in 4 seconds");
+                                Thread.Sleep(1000);
+                                RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 3 SECONDS!", Color.red);
+                                this.Say(this._channel, "Shutting down in 3 seconds");
+                                Thread.Sleep(1000);
+                                RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 2 SECONDS!", Color.red);
+                                this.Say(this._channel, "Shutting down in 2 seconds");
+                                Thread.Sleep(1000);
+                                RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 1 SECOND!", Color.red);
+                                this.Say(this._channel, "Shutting down in 1 second");
+                                Thread.Sleep(1000);
+                            });
+
+                            pcmd2.onexec((string response2) => { });
+
+                            pcmd2.execute = true;
+                            pcmd2.push(unturnedclass);
+
+                        });
+
+                        pcmd.execute = true;
+
+                        pcmd.push(unturnedclass); // Sends it to the main unturned thread
+
+
+
+                        /*InputText myinputtext = Steam.ConsoleInput.onInputText;
 
 
                         RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 5 SECONDS!", Color.red);
@@ -510,19 +680,83 @@ namespace kIRCPlugin
                         this.Say(this._channel, "Shutting down in 1 second");
                         Thread.Sleep(1000);
 
-                        myinputtext("shutdown");
+                        myinputtext("shutdown");*/
+                    }
+                    else
+                    {
+                        for(int i = 0; i < this.custom_commands.Count; i++)
+                        {
+                            kIRC_Commands refer = this.custom_commands[i];
+                            
+                            if(refer.BotCommand.ToLower().Trim() == cmd)
+                            {
+                                bool hasperms = false;
+                                if (refer.FlagNeeded == "q")
+                                    hasperms = IsOwner(user);
+                                else if (refer.FlagNeeded == "a")
+                                    hasperms = IsAdmin(user);
+                                else if (refer.FlagNeeded == "o")
+                                    hasperms = IsOp(user);
+                                else if (refer.FlagNeeded == "h")
+                                    hasperms = IsHalfOp(user);
+                                else if (refer.FlagNeeded == "v")
+                                    hasperms = IsVoice(user);
+                                else
+                                    hasperms = false;
+
+                                if (hasperms)
+                                {
+                                    kIRC_PushCommand pcmd = new kIRC_PushCommand();
+                                    pcmd.command = refer.ConsoleCommand;
+                                    pcmd.parameters = (!String.IsNullOrEmpty(msg) && msg.Split(this._parameter_delimiter).Length>0) ? msg.Split(this._parameter_delimiter) : new string[] { };
+                                    pcmd.extradata.Add("Syntax", refer.BotSyntax);
+                                    pcmd.onfire(() =>
+                                    {
+                                        if (!String.IsNullOrEmpty(refer.IRCmsg_onfire.Trim()))
+                                        {
+                                            this.Say(this._channel, refer.IRCmsg_onfire);
+                                        }
+                                        if (!String.IsNullOrEmpty(refer.GAMEmsg_onfire.Trim()))
+                                        {
+                                            RocketChat.Say(refer.GAMEmsg_onfire);
+                                        }
+                                    });
+                                    pcmd.onexec((string response) =>
+                                    {
+                                        if (!String.IsNullOrEmpty(refer.IRCmsg_onexec.Trim()))
+                                        {
+                                            this.Say(this._channel, refer.IRCmsg_onexec);
+                                        }
+                                        if (!String.IsNullOrEmpty(refer.GAMEmsg_onexec.Trim()))
+                                        {
+                                            RocketChat.Say(refer.GAMEmsg_onexec);
+                                        }
+
+                                        if(refer.printresponse == true)
+                                            this.Say(this._channel, "Response from ("+cmd+"): "+response);
+                                    });
+
+                                    pcmd.execute = true;
+
+                                    pcmd.push(unturnedclass); // Sends it to the main unturned thread
+
+                                }
+
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        public bool IsOwner(string name)
+        public bool IsOwner(string name, bool actualrank = true)
         {
             for (int i = 0; i < this.userlist.Count; i++)
             {
                 if (this.userlist[i][0] == name)
                 {
-                    if (this.allow_adminowner)
+                    if (this.allow_adminowner || actualrank)
                         return userlist[i][1] == "~";
                     else
                         return userlist[i][1] == "@";
@@ -531,13 +765,13 @@ namespace kIRCPlugin
             return false;
         }
 
-        public bool IsAdmin(string name)
+        public bool IsAdmin(string name, bool actualrank = true)
         {
             for (int i = 0; i < this.userlist.Count; i++)
             {
                 if (this.userlist[i][0] == name)
                 {
-                    if (this.allow_adminowner)
+                    if (this.allow_adminowner || actualrank)
                         return userlist[i][1] == "&" || userlist[i][1] == "~";
                     else
                         return userlist[i][1] == "@";
@@ -546,13 +780,13 @@ namespace kIRCPlugin
             return false;
         }
 
-        public bool IsOp(string name)
+        public bool IsOp(string name, bool actualrank = true)
         {
             for (int i = 0; i < this.userlist.Count; i++)
             {
                 if (this.userlist[i][0] == name)
                 {
-                    if (this.allow_adminowner)
+                    if (this.allow_adminowner || actualrank)
                         return userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
                     else
                         return userlist[i][1] == "%" || userlist[i][1] == "@";
@@ -561,13 +795,13 @@ namespace kIRCPlugin
             return false;
         }
 
-        public bool IsHalfOp(string name)
+        public bool IsHalfOp(string name, bool actualrank = true)
         {
             for (int i = 0; i < this.userlist.Count; i++)
             {
                 if (this.userlist[i][0] == name)
                 {
-                    if (this.allow_adminowner)
+                    if (this.allow_adminowner || actualrank)
                         return userlist[i][1] == "%" || userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
                     else
                         return userlist[i][1] == "%" || userlist[i][1] == "@";
@@ -576,13 +810,13 @@ namespace kIRCPlugin
             return false;
         }
 
-        public bool IsVoice(string name)
+        public bool IsVoice(string name, bool actualrank = true)
         {
             for (int i = 0; i < this.userlist.Count; i++)
             {
                 if (this.userlist[i][0] == name)
                 {
-                    if (this.allow_adminowner)
+                    if (this.allow_adminowner || actualrank)
                         return userlist[i][1] == "+" || userlist[i][1] == "%" || userlist[i][1] == "@" || userlist[i][1] == "&" || userlist[i][1] == "~";
                     else
                         return userlist[i][1] == "+" || userlist[i][1] == "%" || userlist[i][1] == "@";
@@ -604,6 +838,11 @@ namespace kIRCPlugin
         public void SetAllowAdminOwner(bool allow)
         {
             this.allow_adminowner = allow;
+        }
+
+        public void SetCustomCommands(List<kIRC_Commands> cc)
+        {
+            this.custom_commands = cc;
         }
 
         public void SendSyntax(string channel, string command, string[] parameters)

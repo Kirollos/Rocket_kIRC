@@ -11,6 +11,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 using Rocket.API;
 using Rocket.Unturned;
 using Rocket.Unturned.Plugins;
@@ -34,12 +35,12 @@ namespace kIRCPlugin
 
         public string Help
         {
-            get {return "Sends a personal message to an IRC user";}
+            get {return "Sends a personal message (IRC Notice) to an IRC user";}
         }
 
         public List<string> Aliases
         {
-            get {return new List<string>();}
+            get {return new List<string>() {"irc"};}
         }
 
         public string Syntax
@@ -73,7 +74,7 @@ namespace kIRCPlugin
                     }
                     useronline = false;
                 }
-
+                
                 if (!useronline)
                 {
                     RocketChat.Say(caller, "Error: Username \"" + username + "\" is not online.", Color.red);

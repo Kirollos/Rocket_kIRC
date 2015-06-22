@@ -57,9 +57,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CPerform.cs" />
     <Compile Include="kIRC.cs" />
+    <Compile Include="kIRCCCommands.cs" />
     <Compile Include="kIRCCommands.cs" />
+    <Compile Include="kIRCConfiguration.cs" />
     <Compile Include="kIRCCore.cs" />
+    <Compile Include="kIRCPCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
