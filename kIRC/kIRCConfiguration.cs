@@ -16,6 +16,7 @@ using Rocket.API;
 using Rocket.Unturned;
 using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
+using SDG.Unturned;
 using UnityEngine;
 using SDG;
 
