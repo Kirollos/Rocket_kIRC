@@ -217,12 +217,22 @@ namespace kIRCPlugin
                 {
                     switch(cause)
                     {
+                        case EDeathCause.GUN:
+                        case EDeathCause.KILL:
+                        case EDeathCause.ROADKILL:
+                        case EDeathCause.PUNCH:
+                        case EDeathCause.MELEE:
+                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by " + RocketPlayer.FromCSteamID(murderer).CharacterName + ". (Cause:" + cause + ", Limb:" + limb + ")");
+                            break;
                         case EDeathCause.SUICIDE:
                             if(this.Configuration.deathevent.suicides)
                                 myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has suicided.");
                             break;
+                        case EDeathCause.ZOMBIE:
+                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by a zombie.");
+                            break;
                         default:
-                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by " + RocketPlayer.FromCSteamID(murderer).CharacterName + ". (Cause:" + cause + ", Limb:" + limb + ")");
+                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died (Cause: "+cause+").");
                             break;
                     }
                 }
