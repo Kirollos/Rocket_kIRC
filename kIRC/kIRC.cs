@@ -36,13 +36,13 @@ namespace kIRCPlugin
             this.do_command = new List<kIRC_PushCommand>();
             if(this.Configuration.server == "EDITME")
             {
-                Rocket.Unturned.RocketConsole.print("kIRC Error: You did not configure the plugin! Unloading now...");
+                Rocket.Unturned.Logging.Logger.LogError("kIRC Error: You did not configure the plugin! Unloading now...");
                 this.Unload();
                 return;
             }
             if(this.Configuration.parameter_delimiter == " ")
             {
-                Rocket.Unturned.RocketConsole.print("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
+                Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
             }
             myirc = new kIRCCore(this.Configuration.server, this.Configuration.port, this.Configuration.nick, this.Configuration.user, this.Configuration.realname, this.Configuration.channel, this.Configuration.password);
             
@@ -55,14 +55,14 @@ namespace kIRCPlugin
                 }
                 else
                 {
-                    Rocket.Unturned.RocketConsole.print("kIRC Error: command_prefix is not a character! Setting default to '!'");
+                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: command_prefix is not a character! Setting default to '!'");
                     this.Configuration.command_prefix = "!";
                     myirc.SetCommandPrefix('!');
                 }
             }
             else
             {
-                Rocket.Unturned.RocketConsole.print("kIRC Error: command_prefix is not set! Setting default to '!'");
+                Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: command_prefix is not set! Setting default to '!'");
                 this.Configuration.command_prefix = "!";
                 myirc.SetCommandPrefix('!');
             }
@@ -75,7 +75,7 @@ namespace kIRCPlugin
                 {
                     if (this.Configuration.parameter_delimiter == " ")
                     {
-                        Rocket.Unturned.RocketConsole.print("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
+                        Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
                         this.Configuration.parameter_delimiter = "/";
                         myirc.SetParameterDelimiter('/');
                     }
@@ -84,14 +84,14 @@ namespace kIRCPlugin
                 }
                 else
                 {
-                    Rocket.Unturned.RocketConsole.print("kIRC Error: parameter_delimiter is not set! Setting default to \"/\"");
+                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter_delimiter is not set! Setting default to \"/\"");
                     this.Configuration.parameter_delimiter = "/";
                     myirc.SetParameterDelimiter('/');
                 }
             }
             else
             {
-                Rocket.Unturned.RocketConsole.print("kIRC Error: parameter_delimiter is not set! Setting default to \"/\"");
+                Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter_delimiter is not set! Setting default to \"/\"");
                 this.Configuration.parameter_delimiter = "/";
                 myirc.SetParameterDelimiter('/');
             }
