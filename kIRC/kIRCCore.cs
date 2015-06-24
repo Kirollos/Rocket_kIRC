@@ -201,6 +201,11 @@ namespace kIRCPlugin
                     this.userlist.Add(new[] { lename, lerank });
                 }
             }
+            if (command == "433")
+            {
+                RocketConsole.print("Error: Nickname taken. Reload the plugin for reconnection.");
+                this.Destruct();
+            }
             if(command == "JOIN")
             {
                 string user = prefix.Split('!')[0];
