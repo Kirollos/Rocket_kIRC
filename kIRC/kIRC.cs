@@ -209,12 +209,24 @@ namespace kIRCPlugin
         private void Unturned_OnPlayerDeath(RocketPlayer player, EDeathCause cause, ELimb limb, Steamworks.CSteamID murderer)
         {
             if (!myirc.isConnected) return;
-            if (Configuration.deathevent)
+            if (Configuration.deathevent.show)
             {
-                if(RocketPlayer.FromCSteamID(murderer) != null)
-                    myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by "+RocketPlayer.FromCSteamID(murderer).CharacterName+". (Cause:" + cause + ", Limb:" + limb + ")");
-                else
+                if(RocketPlayer.FromCSteamID(murderer) == null)
                     myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died.");
+                else
+                {
+                    switch(cause)
+                    {
+                        case EDeathCause.SUICIDE:
+                            if(this.Configuration.deathevent.suicides)
+                                myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has suicided.");
+                            break;
+                        default:
+                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by " + RocketPlayer.FromCSteamID(murderer).CharacterName + ". (Cause:" + cause + ", Limb:" + limb + ")");
+                            break;
+                    }
+                }
+                    //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by "+RocketPlayer.FromCSteamID(murderer).CharacterName+". (Cause:" + cause + ", Limb:" + limb + ")");
             }
         }
 

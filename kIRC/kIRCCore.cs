@@ -271,7 +271,7 @@ namespace kIRCPlugin
                         {
                             if(this.custom_commands[i].FlagNeeded == "v" || this.custom_commands[i].FlagNeeded == "")
                             {
-                                this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + " " + this.custom_commands[i].BotSyntax);
                             }
                         }
                         // ---------------
@@ -284,7 +284,7 @@ namespace kIRCPlugin
                             {
                                 if (this.custom_commands[i].FlagNeeded == "h")
                                 {
-                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + " " + this.custom_commands[i].BotSyntax);
                                 }
                             }
                             // ---------------
@@ -297,7 +297,7 @@ namespace kIRCPlugin
                             {
                                 if (this.custom_commands[i].FlagNeeded == "o")
                                 {
-                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + " " + this.custom_commands[i].BotSyntax);
                                 }
                             }
                             // ---------------
@@ -314,7 +314,7 @@ namespace kIRCPlugin
                             {
                                 if (this.custom_commands[i].FlagNeeded == "a")
                                 {
-                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + " " + this.custom_commands[i].BotSyntax);
                                 }
                             }
                             // ---------------
@@ -326,7 +326,7 @@ namespace kIRCPlugin
                             {
                                 if (this.custom_commands[i].FlagNeeded == "q")
                                 {
-                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + this.custom_commands[i].BotSyntax);
+                                    this.Say(this._channel, "+ " + this._command_prefix + this.custom_commands[i].BotCommand + " " + this.custom_commands[i].BotSyntax);
                                 }
                             }
                             // ---------------

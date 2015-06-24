@@ -10,7 +10,8 @@
   <command_prefix>!</command_prefix> <!-- The command prefix (Default: !, Example: !help -->
   <parameter_delimiter>/</parameter_delimiter> <!-- The command parameters delimiter (splitter) (Default: /, Example: !kick datnamedoe/datreason) -->
   <allow_adminowner>true</allow_adminowner> <!-- true=If your IRC network supports +qa (~ and &) | false= If otherwise. (Since V1.2)-->
-  <deathevent>true</deathevent> <!-- true=If you want to send death messages to the IRC channel. false= If otherwise. (Since V1.5)-->
+  <deathevent show="true" suicides="false" /> <!-- show: true= If you want the bot to echo death events. false= If otherwise. -->
+												<!-- suicides: true= If you want the bot to echo suicides. false= If otherwise. (Since V1.5.1)-->
   <perform> <!-- Perform those commands after the bot connects to the network (can be left blank) (Since V1.5)-->
     <Perform>PRIVMSG #somechannel :I am a bot (EXAMPLE PERFORM)</Perform>
 	<Perform>NOTICE #somechannel :hyyy</Perform>
