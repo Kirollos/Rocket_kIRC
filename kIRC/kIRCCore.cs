@@ -126,7 +126,7 @@ namespace kIRCPlugin
             if (data == "") return;
             if(data.Substring(0, 6) == "ERROR ")
             {
-                RocketConsole.print("Error: IRC socket has closed. Reload the plugin for reconnection.");
+                Rocket.Unturned.Logging.Logger.LogError("Error: IRC socket has closed. Reload the plugin for reconnection.");
                 this.Destruct();
             }
             // Regex taken from (http://calebdelnay.com/blog/2010/11/parsing-the-irc-message-format-as-a-client)
@@ -203,7 +203,7 @@ namespace kIRCPlugin
             }
             if (command == "433")
             {
-                RocketConsole.print("Error: Nickname taken. Reload the plugin for reconnection.");
+                Rocket.Unturned.Logging.Logger.LogError("Error: Nickname taken. Reload the plugin for reconnection.");
                 this.Destruct();
             }
             if(command == "JOIN")
