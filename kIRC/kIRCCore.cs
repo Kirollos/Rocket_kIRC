@@ -36,7 +36,7 @@ namespace kIRCPlugin
         public bool Registered = false;
         private TcpClient ircsock;
         private Stream mystream;
-        private ASCIIEncoding _encoding;
+        private UTF8Encoding _encoding;
         public List<string[]> userlist = new List<string[]>();
 
         public bool allow_adminowner;
@@ -54,7 +54,7 @@ namespace kIRCPlugin
             ircsock.Connect(host, port);
             mystream = ircsock.GetStream();
             ircsock.NoDelay = true;
-            _encoding = new ASCIIEncoding();
+            _encoding = new UTF8Encoding();
             isConnected = true;
             _nick = nick;
             _host = host;
