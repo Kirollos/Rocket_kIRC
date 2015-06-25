@@ -52,6 +52,8 @@ namespace kIRCPlugin
         //public void Execute(RocketPlayer caller, string command) // Changes in the API, cri D:
         public void Execute(RocketPlayer caller, string[] command)
         {
+            if (!kIRC.myirc.isConnected) return;
+
             //if (String.IsNullOrEmpty(command) || command.Split(' ').Length < 2)
             if (command.Length < 2)
             {
