@@ -52,7 +52,7 @@ namespace kIRCPlugin
         //public void Execute(RocketPlayer caller, string command) // Changes in the API, cri D:
         public void Execute(RocketPlayer caller, string[] command)
         {
-            if (!kIRC.myirc.isConnected) return;
+            if (!kIRC.dis.myirc.isConnected) return;
 
             //if (String.IsNullOrEmpty(command) || command.Split(' ').Length < 2)
             if (command.Length < 2)
@@ -68,9 +68,9 @@ namespace kIRCPlugin
                 string message = String.Join(" ", command, 1, command.Length - 1);
                 bool useronline = false;
 
-                for (int i = 0; i < kIRC.myirc.userlist.Count; i++)
+                for (int i = 0; i < kIRC.dis.myirc.userlist.Count; i++)
                 {
-                    if (kIRC.myirc.userlist[i][0] == username)
+                    if (kIRC.dis.myirc.userlist[i][0] == username)
                     {
                         useronline = true;
                         break;
@@ -85,7 +85,7 @@ namespace kIRCPlugin
                 }
                 else
                 {
-                    kIRC.myirc.Notice(username, "[Unturned PM] " + caller.CharacterName + ": " + message);
+                    kIRC.dis.myirc.Notice(username, "[Unturned PM] " + caller.CharacterName + ": " + message);
                 }
             }
         }

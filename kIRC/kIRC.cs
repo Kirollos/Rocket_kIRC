@@ -24,7 +24,8 @@ namespace kIRCPlugin
 {
     public class kIRC : RocketPlugin<kIRCConfig>
     {
-        public static kIRCCore myirc;
+        public static kIRC dis;
+        public kIRCCore myirc;
         Thread ircthread;
 
         public Dictionary<string, byte> _playershealth = new Dictionary<string, byte>();
@@ -33,6 +34,7 @@ namespace kIRCPlugin
 
         protected override void Load()
         {
+            dis = this;
             this.do_command = new List<kIRC_PushCommand>();
             if(this.Configuration.server == "EDITME")
             {
@@ -250,6 +252,22 @@ namespace kIRCPlugin
             else
             {
                 _playershealth.Add(player.CharacterName, health);
+            }
+        }
+
+        public override Dictionary<string, string> DefaultTranslations
+        {
+            get
+            {
+                return new Dictionary<string, string>()
+                {
+                    {"game_ircjoin","[IRC JOIN] {irc_usernick} has joined IRC channel."},
+                    {"game_ircpart","[IRC PART] {irc_usernick} has parted IRC channel."},
+                    {"game_ircsay","[IRC] {irc_usernick}: {irc_message}"},
+                    {"irc_playerslist","Connected Players[{players_amount}/{players_max}]: {players_list}"},
+                    {"game_ircpm","[IRC PM] {irc_usernick}: {irc_message}"},
+                    {"game_ircbroadcast","[IRC Broadcast]: {irc_message}"}
+                };
             }
         }
 

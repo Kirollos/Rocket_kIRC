@@ -209,13 +209,33 @@ namespace kIRCPlugin
             if(command == "JOIN")
             {
                 string user = prefix.Split('!')[0];
-                RocketChat.Say("[IRC JOIN] "+ user +" has joined IRC channel.", Color.gray);
+                string ident = prefix.Split('!')[1].Split('@')[0];
+                string host = prefix.Split('@')[1];
+                //RocketChat.Say("[IRC JOIN] "+ user +" has joined IRC channel.", Color.gray);
+                kIRCTranslate.Rocket_ChatSay("game_ircjoin", Color.gray, new Dictionary<string, string>()
+                {
+                    {"irc_usernick", user},
+                    {"irc_userident", ident},
+                    {"irc_userhost", host},
+                    {"irc_channel", this._channel}
+                });
+
                 this.userlist.Add(new[] { user, "" });
             }
             else if(command == "PART")
             {
                 string user = prefix.Split('!')[0];
-                RocketChat.Say("[IRC PART] " + user + " has left IRC channel.", Color.gray);
+                string ident = prefix.Split('!')[1].Split('@')[0];
+                string host = prefix.Split('@')[1];
+                //RocketChat.Say("[IRC PART] " + user + " has left IRC channel.", Color.gray);
+                kIRCTranslate.Rocket_ChatSay("game_ircpart", Color.gray, new Dictionary<string, string>()
+                {
+                    {"irc_usernick", user},
+                    {"irc_userident", ident},
+                    {"irc_userhost", host},
+                    {"irc_channel", this._channel},
+                    {"irc_partreason", trailing.Trim()}
+                });
                 
                 for(int i = 0; i < this.userlist.Count; i++)
                 {
@@ -254,6 +274,8 @@ namespace kIRCPlugin
                     }
                     string msg = "";
                     string user = prefix.Split('!')[0];
+                    string ident = prefix.Split('!')[1].Split('@')[0];
+                    string host = prefix.Split('@')[1];
                     cmd = cmd.Remove(0, 1); // remove the prefix pls
                     
                     msg = trailing.Remove(0, 1 + cmd.Length).Trim();
@@ -346,7 +368,16 @@ namespace kIRCPlugin
                             this.SendSyntax(this._channel, cmd, ParamSyntax);
                             return;
                         }
-                        RocketChat.Say("[IRC] " + user + ": " + msg, Color.yellow);
+                        //RocketChat.Say("[IRC] " + user + ": " + msg, Color.yellow);
+                        kIRCTranslate.Rocket_ChatSay("game_ircsay", Color.yellow, new Dictionary<string, string>()
+                        {
+                            {"irc_usernick", user},
+                            {"irc_userident", ident},
+                            {"irc_userhost", host},
+                            {"irc_channel", this._channel},
+                            {"irc_message", msg}
+                        });
+
                     }
                     else if (cmd == "players" && IsVoice(user, false))
                     {
@@ -357,7 +388,16 @@ namespace kIRCPlugin
                             if (i != (Steam.Players.Count - 1))
                                 playerlist += ", ";
                         }
-                        this.Say(this._channel, "Connected Players[" + Steam.Players.Count + "/"+Steam.MaxPlayers+"]: " + playerlist);
+                        //this.Say(this._channel, "Connected Players[" + Steam.Players.Count + "/"+Steam.MaxPlayers+"]: " + playerlist);
+                        kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_playerslist", new Dictionary<string, string>()
+                        {
+                            {"irc_usernick", user},
+                            {"irc_userident", ident},
+                            {"irc_userhost", host},
+                            {"players_amount", Steam.Players.Count.ToString()},
+                            {"players_max", Steam.MaxPlayers.ToString()},
+                            {"players_list", playerlist}
+                        });
                     }
                     else if (cmd == "pm" && IsVoice(user, false))
                     {
@@ -377,7 +417,15 @@ namespace kIRCPlugin
                                 this.Say(this._channel, "[ERROR] Player " + pname + " not found.");
                             else
                             {
-                                RocketChat.Say(pPointer, "[IRC PM] " + user + ": " + message, Color.magenta);
+                                //RocketChat.Say(pPointer, "[IRC PM] " + user + ": " + message, Color.magenta);
+                                kIRCTranslate.Rocket_ChatSay("game_ircpm", Color.magenta, new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"irc_message", message}
+                                });
                             }
                         }
                     }
@@ -426,7 +474,15 @@ namespace kIRCPlugin
                             this.SendSyntax(this._channel, cmd, ParamSyntax);
                             return;
                         }
-                        RocketChat.Say("[IRC Broadcast]: " + msg, Color.red);
+                        //RocketChat.Say("[IRC Broadcast]: " + msg, Color.red);
+                        kIRCTranslate.Rocket_ChatSay("game_ircbroadcast", Color.red, new Dictionary<string, string>()
+                        {
+                            {"irc_usernick", user},
+                            {"irc_userident", ident},
+                            {"irc_userhost", host},
+                            {"irc_channel", this._channel},
+                            {"irc_message", msg}
+                        });
                     }
                     else if (cmd == "kick" && IsOp(user, false))
                     {
