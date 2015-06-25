@@ -259,6 +259,9 @@ namespace kIRCPlugin
         {
             get
             {
+                /*
+                 * Notice: This function is not finished yet
+                */
                 return new Dictionary<string, string>()
                 {
                     {"game_ircjoin","[IRC JOIN] {irc_usernick} has joined IRC channel."},

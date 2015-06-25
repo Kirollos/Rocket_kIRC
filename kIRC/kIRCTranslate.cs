@@ -24,8 +24,8 @@ namespace kIRCPlugin
 {
     enum mIRC_Colours
     {
-        White = 0,  Black,  Blue,   Green,  LRed,   Brown,  Purple, 
-        Orange,     Yellow, LGreen, Cyan,   LCyan,  LBlue,  Pink,   Grey,   LGrey
+        white = 0,  black,  blue,   green,  lred,   brown,  purple, 
+        orange,     yellow, lgreen, cyan,   lcyan,  lblue,  pink,   grey,   lgrey
     }
 
     class kIRCTranslate
@@ -43,32 +43,34 @@ namespace kIRCPlugin
             }
 
             int idx;
-            while((idx = retval.IndexOf("{irccolor:")) > 0)
+            while((idx = retval.IndexOf("{irccolor:", 0)) > -1)
             {
                 int idxc = retval.IndexOf(':', idx);
                 int idxend = retval.IndexOf('}', idxc);
-                string colourname = retval.Substring(idxc + 1, idxend-idxc);
+                string colourname = retval.Substring(idxc + 1, idxend-idxc -1).ToLower();
 
                 mIRC_Colours colourid;
 
                 try
                 {
                     colourid = (mIRC_Colours) Enum.Parse(typeof(mIRC_Colours), colourname);
-                    if(!Enum.IsDefined(typeof(mIRC_Colours), colourid))
+                    if(!Enum.IsDefined(typeof(mIRC_Colours), colourid) || colourid.ToString() == "None")
                     {
                         Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: IRC colour (" + colourname + ") is invalid. Using colour ID 0.");
-                        colourid = mIRC_Colours.Black; // 0
+                        colourid = mIRC_Colours.black; // 0
                     }
                 }
                 catch
                 {
                     Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: IRC colour (" + colourname + ") is invalid. Using colour ID 0.");
-                    colourid = mIRC_Colours.Black; // 0
+                    colourid = mIRC_Colours.black; // 0
                 }
 
-                retval.Replace("{irccolor:" + colourname + "}", String.Format("{0}{1:D2}", Convert.ToChar(3), (int)colourid));
+                retval = retval.Replace("{irccolor:" + colourname + "}", String.Format("{0}{1:D2}", Convert.ToChar(3), (int)colourid));
 
             }
+
+            retval = retval.Replace("{ircbold}", Convert.ToChar(2).ToString());
 
             return retval;
         }
