@@ -111,6 +111,11 @@ namespace kIRCPlugin
             Rocket.Unturned.Events.RocketServerEvents.OnPlayerDisconnected += Unturned_OnPlayerDisconnected;
             Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerDeath += Unturned_OnPlayerDeath;
             Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerUpdateHealth += Unturned_OnPlayerUpdateHealth;
+
+            Rocket.Unturned.Logging.Logger.Log("kIRC Loaded! Version: " + kIRCVersionChecker.VERSION);
+
+            kIRCVersionChecker.CheckUpdate();
+
         }
 
         protected override void Unload()
@@ -139,6 +144,11 @@ namespace kIRCPlugin
             if (!this.Loaded)
                 return;
             //myirc.parse(myirc.Read(), this); // Made a thread instead :(
+
+            if(kIRCVersionChecker.lastchecked < DateTime.Now.AddHours(1))
+            {
+                kIRCVersionChecker.CheckUpdate();
+            }
             
             if(this.do_command.Count > 0)
             {

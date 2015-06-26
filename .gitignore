@@ -11,6 +11,8 @@
 *.userprefs
 
 # Build results
+[Dd]ebug/
+[Rr]elease/
 [Dd]ebugPublic/
 [Rr]eleases/
 x64/
@@ -18,7 +20,6 @@ x86/
 build/
 bld/
 [Oo]bj/
-[Dd]ebug/
 
 # Visual Studo 2015 cache/options directory
 .vs/

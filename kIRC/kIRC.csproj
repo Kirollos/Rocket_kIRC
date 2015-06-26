@@ -65,6 +65,7 @@
     <Compile Include="kIRCCore.cs" />
     <Compile Include="kIRCPCommand.cs" />
     <Compile Include="kIRCTranslate.cs" />
+    <Compile Include="kIRCVersionChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
