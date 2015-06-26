@@ -160,9 +160,9 @@ namespace kIRCPlugin
             if (command == "001")
             {
                 this.Registered = true;
-            }
-            if (command == "005")
-            {
+            //}
+            //if (command == "005")
+            //{
                 if(!String.IsNullOrEmpty(this._password))
                     this.Say("NickServ", "IDENTIFY " + this._password);
                 this.Send("JOIN " + _channel);
@@ -501,7 +501,16 @@ namespace kIRCPlugin
                             else
                             {
                                 RocketPlayer.FromName(pname).Kick(reason);
-                                this.Say(this._channel, "[SUCCESS] Player " + pname + " is kicked!");
+                                //this.Say(this._channel, "[SUCCESS] Player " + pname + " is kicked!");
+                                kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_kicksuccess", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"irc_targetnick", pname},
+                                    {"irc_kickreason", reason}
+                                });
                             }
                         }
                     }
@@ -535,12 +544,32 @@ namespace kIRCPlugin
                                 else
                                 {
                                     // pPointer.Ban(reason, (uint) duration); // Doesn't work (https://github.com/RocketFoundation/Rocket/issues/173)
-                                    this.Say(this._channel, "[SUCCESS] Player " + pname + " is banned!");
+                                    //this.Say(this._channel, "[SUCCESS] Player " + pname + " is banned!");
+                                    kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_pbansuccess", new Dictionary<string, string>()
+                                    {
+                                        {"irc_usernick", user},
+                                        {"irc_userident", ident},
+                                        {"irc_userhost", host},
+                                        {"irc_channel", this._channel},
+                                        {"irc_targetnick", pname},
+                                        {"irc_banreason", reason},
+                                        {"irc_banduration", durationstr}
+                                    });
                                 }
                             }
                             else
                             {
-                                this.Say(this._channel, "[SUCCESS] SteamID "+pname+" is banned.");
+                                //this.Say(this._channel, "[SUCCESS] SteamID "+pname+" is banned.");
+                                kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_sbansuccess", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"irc_targetsteamid", pname},
+                                    {"irc_banreason", reason},
+                                    {"irc_banduration", durationstr}
+                                });
                             }
 
                             kIRC_PushCommand pcmd = new kIRC_PushCommand();
@@ -573,7 +602,16 @@ namespace kIRCPlugin
                             pcmd.parameters = new string[] { msg };
                             pcmd.onfire(() => { } );
                             pcmd.onexec((string response) => {
-                                this.Say(this._channel, "Unban response: " + response);
+                                //this.Say(this._channel, "Unban response: " + response);
+                                kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_unbanresponse", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"irc_targetsteamid", msg},
+                                    {"irc_response", response}
+                                });
                             });
 
                             pcmd.execute = true;
@@ -646,12 +684,42 @@ namespace kIRCPlugin
                         pcmd.command = "save";
                         pcmd.parameters = new string[] { };
                         pcmd.onfire(() => {
-                            this.Say(this._channel, "Saving server settings...");
-                            RocketChat.Say("[IRC] Saving server settings...");
+                            //this.Say(this._channel, "Saving server settings...");
+                            //RocketChat.Say("[IRC] Saving server settings...");
+                            kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_onsave", new Dictionary<string, string>()
+                            {
+                                {"irc_usernick", user},
+                                {"irc_userident", ident},
+                                {"irc_userhost", host},
+                                {"irc_channel", this._channel}
+                            });
+                            kIRCTranslate.Rocket_ChatSay("game_onsave", new Dictionary<string, string>()
+                            {
+                                {"irc_usernick", user},
+                                {"irc_userident", ident},
+                                {"irc_userhost", host},
+                                {"irc_channel", this._channel}
+                            });
                         });
                         pcmd.onexec((string response) => {
-                            this.Say(this._channel, "Save response: " + response);
-                            RocketChat.Say("[IRC] Server settings, Player items saved!");
+                            //this.Say(this._channel, "Save response: " + response);
+                            //RocketChat.Say("[IRC] Server settings, Player items saved!");
+                            kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_saveexec", new Dictionary<string, string>()
+                            {
+                                {"irc_usernick", user},
+                                {"irc_userident", ident},
+                                {"irc_userhost", host},
+                                {"irc_channel", this._channel},
+                                {"irc_response", response}
+                            });
+                            kIRCTranslate.Rocket_ChatSay("game_saveexec", new Dictionary<string, string>()
+                            {
+                                {"irc_usernick", user},
+                                {"irc_userident", ident},
+                                {"irc_userhost", host},
+                                {"irc_channel", this._channel},
+                                {"irc_response", response}
+                            });
                         });
 
                         pcmd.execute = true;
@@ -680,13 +748,37 @@ namespace kIRCPlugin
                         pcmd.parameters = new string[] { };
                         pcmd.onfire(() =>
                         {
-                            RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 5 SECONDS!", Color.red);
-                            this.Say(this._channel, "Shutting down in 5 seconds");
+                            //RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 5 SECONDS!", Color.red);
+                            //this.Say(this._channel, "Shutting down in 5 seconds");
+                            kIRCTranslate.Rocket_ChatSay("game_shutdownwarning", new Dictionary<string, string>()
+                            {
+                                {"irc_usernick", user},
+                                {"irc_userident", ident},
+                                {"irc_userhost", host},
+                                {"irc_channel", this._channel},
+                                {"shutdown_secs", "5"}
+                            });
+                            kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_shutdownwarning", new Dictionary<string, string>()
+                            {
+                                {"irc_usernick", user},
+                                {"irc_userident", ident},
+                                {"irc_userhost", host},
+                                {"irc_channel", this._channel},
+                                {"shutdown_secs", "5"}
+                            });
                             Thread.Sleep(1000);
                         });
                         pcmd.onexec((string response) =>
                         {
-                            RocketChat.Say("[IRC] Server settings, Player items saved!");
+                            //RocketChat.Say("[IRC] Server settings, Player items saved!");
+                            kIRCTranslate.Rocket_ChatSay("game_saveexec", new Dictionary<string, string>()
+                            {
+                                {"irc_usernick", user},
+                                {"irc_userident", ident},
+                                {"irc_userhost", host},
+                                {"irc_channel", this._channel},
+                                {"irc_response", response}
+                            });
 
                             kIRC_PushCommand pcmd2 = new kIRC_PushCommand();
                             pcmd2.command = "shutdown";
@@ -694,7 +786,7 @@ namespace kIRCPlugin
 
                             pcmd2.onfire(() => 
                             {
-                                RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 4 SECONDS!", Color.red);
+                                /*RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 4 SECONDS!", Color.red);
                                 this.Say(this._channel, "Shutting down in 4 seconds");
                                 Thread.Sleep(1000);
                                 RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 3 SECONDS!", Color.red);
@@ -705,6 +797,74 @@ namespace kIRCPlugin
                                 Thread.Sleep(1000);
                                 RocketChat.Say("[IRC WARNING]: SERVER IS SHUTTING DOWN IN 1 SECOND!", Color.red);
                                 this.Say(this._channel, "Shutting down in 1 second");
+                                Thread.Sleep(1000);*/
+                                kIRCTranslate.Rocket_ChatSay("game_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "4"}
+                                });
+                                kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "4"}
+                                });
+                                Thread.Sleep(1000);
+                                kIRCTranslate.Rocket_ChatSay("game_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "3"}
+                                });
+                                kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "3"}
+                                });
+                                Thread.Sleep(1000);
+                                kIRCTranslate.Rocket_ChatSay("game_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "2"}
+                                });
+                                kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "2"}
+                                });
+                                Thread.Sleep(1000);
+                                kIRCTranslate.Rocket_ChatSay("game_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "1"}
+                                });
+                                kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_shutdownwarning", new Dictionary<string, string>()
+                                {
+                                    {"irc_usernick", user},
+                                    {"irc_userident", ident},
+                                    {"irc_userhost", host},
+                                    {"irc_channel", this._channel},
+                                    {"shutdown_secs", "1"}
+                                });
                                 Thread.Sleep(1000);
                             });
 

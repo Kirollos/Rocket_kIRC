@@ -269,7 +269,17 @@ namespace kIRCPlugin
                     {"game_ircsay","[IRC] {irc_usernick}: {irc_message}"},
                     {"irc_playerslist","Connected Players[{players_amount}/{players_max}]: {players_list}"},
                     {"game_ircpm","[IRC PM] {irc_usernick}: {irc_message}"},
-                    {"game_ircbroadcast","[IRC Broadcast]: {irc_message}"}
+                    {"game_ircbroadcast","[IRC Broadcast]: {irc_message}"},
+                    {"irc_kicksuccess", "[SUCCESS] Player {irc_targetnick} is kicked!"},
+                    {"irc_pbansuccess", "[SUCCESS] Player {irc_targetnick} is banned!"},
+                    {"irc_sbansuccess", "[SUCCESS] SteamID {irc_targetsteamid} is banned."},
+                    {"irc_unbanresponse", "Unban response: {irc_response}"},
+                    {"irc_onsave", "Saving server settings..."},
+                    {"game_onsave", "[IRC] Saving server settings..."},
+                    {"irc_saveexec", "Save response: {irc_response}"},
+                    {"game_saveexec", "[IRC] Server settings, Player items saved!"},
+                    {"game_shutdownwarning", "[IRC WARNING]: SERVER IS SHUTTING DOWN IN {shutdown_secs} SECONDS!"},
+                    {"irc_shutdownwarning", "Shutting down in {shutdown_secs} seconds"}
                 };
             }
         }
