@@ -172,6 +172,7 @@ namespace kIRCPlugin
                     this.Send(this.cperform[i].pcommand);
                 }
                 // -------
+                kIRCVersionChecker.CheckUpdate(this, this._channel); // Update checker
             }
             if (command == "353")
             {

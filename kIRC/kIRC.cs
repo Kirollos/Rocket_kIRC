@@ -145,7 +145,7 @@ namespace kIRCPlugin
                 return;
             //myirc.parse(myirc.Read(), this); // Made a thread instead :(
 
-            if(kIRCVersionChecker.lastchecked < DateTime.Now.AddHours(1))
+            if (kIRCVersionChecker.lastchecked.AddHours(1) < DateTime.Now)
             {
                 kIRCVersionChecker.CheckUpdate();
             }
