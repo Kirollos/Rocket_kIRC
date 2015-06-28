@@ -455,7 +455,7 @@ namespace kIRCPlugin
                                     {"irc_userhost", host},
                                     {"irc_channel", this._channel},
                                     {"irc_message", message}
-                                });
+                                }, pPointer);
                             }
                         }
                     }

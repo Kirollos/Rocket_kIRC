@@ -87,14 +87,20 @@ namespace kIRCPlugin
             return;
         }
 
-        public static void Rocket_ChatSay(string key, Color color, Dictionary<string, string> _parameters)
+        public static void Rocket_ChatSay(string key, Color color, Dictionary<string, string> _parameters, RocketPlayer ppointer = null)
         {
-            RocketChat.Say(kIRCTranslate.Translate(key, _parameters), color);
+            if (ppointer != null)
+            RocketChat.Say(ppointer, kIRCTranslate.Translate(key, _parameters), color);
+            else
+                RocketChat.Say(kIRCTranslate.Translate(key, _parameters), color);    
         }
 
-        public static void Rocket_ChatSay(string key, Dictionary<string, string> _parameters)
+        public static void Rocket_ChatSay(string key, Dictionary<string, string> _parameters, RocketPlayer ppointer = null)
         {
-            RocketChat.Say(kIRCTranslate.Translate(key, _parameters));
+            if(ppointer != null)
+                RocketChat.Say(ppointer, kIRCTranslate.Translate(key, _parameters));
+            else
+                RocketChat.Say(kIRCTranslate.Translate(key, _parameters));
         }
     }
 }
