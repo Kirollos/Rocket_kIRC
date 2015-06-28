@@ -12,13 +12,14 @@
 
 # Build results
 [Dd]ebug/
-[Rr]elease/
 [Dd]ebugPublic/
+[Rr]elease/
 [Rr]eleases/
 x64/
 x86/
 build/
 bld/
+[Bb]in/
 [Oo]bj/
 
 # Visual Studo 2015 cache/options directory
@@ -193,6 +194,3 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
-
-# Useless file
-kIRC.zip
