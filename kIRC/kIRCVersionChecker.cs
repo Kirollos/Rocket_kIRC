@@ -24,7 +24,7 @@ namespace kIRCPlugin
 {
     class kIRCVersionChecker
     {
-        public const string VERSION = "v1.5";
+        public const string VERSION = "v1.6";
         public const string update_checkerurl = "https://raw.githubusercontent.com/Kirollos/Rocket_kIRC/master/VERSION";
         static HttpWebRequest Updater;
         static HttpWebResponse Updater_Response;
@@ -63,7 +63,8 @@ namespace kIRCPlugin
                 }
                 else
                 {
-                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: This plugin is outdated! Latest version on repository is " + ver + ".");
+                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: Plugin version mismatch!");
+                    Rocket.Unturned.Logging.Logger.LogWarning("Current version: "+VERSION+", Latest version on repository is " + ver + ".");
                 }
             }
             else
@@ -97,7 +98,8 @@ namespace kIRCPlugin
                 }
                 else
                 {
-                    irc.Say(irc_target, "kIRC Warning: This plugin is outdated! Latest version on repository is " + ver + ".");
+                    irc.Say(irc_target, "kIRC Warning: Plugin version mismatch!");
+                    irc.Say(irc_target, "Current version: " + VERSION + ", Latest version on repository is " + ver + ".");
                 }
             }
             else

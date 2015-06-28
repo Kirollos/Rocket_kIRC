@@ -20,10 +20,6 @@ using SDG.Unturned;
 using UnityEngine;
 using SDG;
 
-/*
- * Notice: This function is not finished yet
-*/
-
 namespace kIRCPlugin
 {
     enum mIRC_Colours

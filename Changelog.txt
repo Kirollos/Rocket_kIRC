@@ -12,8 +12,24 @@ V1.2:
 - Added “allow_adminowner” in the configuration file for networks that don’t support +qa (~ and &).
 
 V1.5:
+
 - NOTICE: It's better to delete the configuration and let the plugin re-generate the configuration
 - Added death event.
 - Added alias "/irc" for in-game command "/ircpm"
 - Added custom commands (check the configuration)
 - Added perform commands to be executed when the bot connects
+
+V1.5.1:
+
+- Bug fixes.
+- Changes in the configuration file.
+
+V1.6:
+
+- Internal tweaks.
+- Fixed a bug when executing perform-on-connect.
+- Fixed issues when trying to log errors in console.
+- Using UTF-8 encoding now instead of ASCII when sending/receiving IRC messages.
+- Added Rocket Translation, with this you can use your own formatted messages, Check out the repository wiki for more information.
+- Added version checker, It will perform a check every hour and will output the result in console.
+- Check the configuration.xml in the repository, to know how to configure the plugin.

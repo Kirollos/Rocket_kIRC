@@ -198,20 +198,38 @@ namespace kIRCPlugin
         {
             if (!myirc.isConnected) return;
             if (message[0] == '/') return; // Blocking commands from echoing in the channel
-            myirc.Say(myirc._channel, "[CHAT] " + player.CharacterName + ": " + message);
+            //myirc.Say(myirc._channel, "[CHAT] " + player.CharacterName + ": " + message);
+            kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onchat", new Dictionary<string, string>()
+            {
+                {"playername", player.CharacterName},
+                {"steamid", player.CSteamID.ToString()},
+                {"message", message}
+            });
         }
         
         private void Unturned_OnPlayerConnected(RocketPlayer player)
         {
             if (!myirc.isConnected) return;
-            myirc.Say(myirc._channel, "[CONNECT] " + player.CharacterName + " has connected!");
+            //myirc.Say(myirc._channel, "[CONNECT] " + player.CharacterName + " has connected!");
+            kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerconnect", new Dictionary<string, string>()
+            {
+                {"playername", player.CharacterName},
+                {"steamid", player.CSteamID.ToString()},
+                {"time", DateTime.Now.ToString()}
+            });
             _playershealth.Add(player.CharacterName, 100);
         }
 
         private void Unturned_OnPlayerDisconnected(RocketPlayer player)
         {
             if (!myirc.isConnected) return;
-            myirc.Say(myirc._channel, "[DISCONNECT] " + player.CharacterName + " has disconnected!");
+            //myirc.Say(myirc._channel, "[DISCONNECT] " + player.CharacterName + " has disconnected!");
+            kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdisconnect", new Dictionary<string, string>()
+            {
+                {"playername", player.CharacterName},
+                {"steamid", player.CSteamID.ToString()},
+                {"time", DateTime.Now.ToString()}
+            });
             if(_playershealth.ContainsKey(player.CharacterName))
             {
                 _playershealth.Remove(player.CharacterName);
@@ -224,7 +242,13 @@ namespace kIRCPlugin
             if (Configuration.deathevent.show)
             {
                 if(RocketPlayer.FromCSteamID(murderer) == null)
-                    myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died.");
+                    //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died.");
+                    kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdeath_unknown", new Dictionary<string, string>()
+                    {
+                        {"playername", player.CharacterName},
+                        {"steamid", player.CSteamID.ToString()},
+                        {"time", DateTime.Now.ToString()}
+                    });
                 else
                 {
                     switch(cause)
@@ -234,17 +258,46 @@ namespace kIRCPlugin
                         case EDeathCause.ROADKILL:
                         case EDeathCause.PUNCH:
                         case EDeathCause.MELEE:
-                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by " + RocketPlayer.FromCSteamID(murderer).CharacterName + ". (Cause:" + cause + ", Limb:" + limb + ")");
+                            //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by " + RocketPlayer.FromCSteamID(murderer).CharacterName + ". (Cause:" + cause + ", Limb:" + limb + ")");
+                            kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdeath_killed", new Dictionary<string, string>()
+                            {
+                                {"playername", player.CharacterName},
+                                {"steamid", player.CSteamID.ToString()},
+                                {"time", DateTime.Now.ToString()},
+                                {"cause", cause.ToString()},
+                                {"limb", limb.ToString()},
+                                {"killername", RocketPlayer.FromCSteamID(murderer).CharacterName},
+                                {"killersteamid", murderer.ToString()}
+                            });
                             break;
                         case EDeathCause.SUICIDE:
                             if(this.Configuration.deathevent.suicides)
-                                myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has suicided.");
+                                //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has suicided.");
+                                kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdeath_suicided", new Dictionary<string, string>()
+                                {
+                                    {"playername", player.CharacterName},
+                                    {"steamid", player.CSteamID.ToString()},
+                                    {"time", DateTime.Now.ToString()}
+                                });
                             break;
                         case EDeathCause.ZOMBIE:
-                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by a zombie.");
+                            //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has been killed by a zombie.");
+                            kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdeath_byzombie", new Dictionary<string, string>()
+                            {
+                                {"playername", player.CharacterName},
+                                {"steamid", player.CSteamID.ToString()},
+                                {"time", DateTime.Now.ToString()}
+                            });
                             break;
                         default:
-                            myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died (Cause: "+cause+").");
+                            //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died (Cause: "+cause+").");
+                            kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdeath_other", new Dictionary<string, string>()
+                            {
+                                {"playername", player.CharacterName},
+                                {"steamid", player.CSteamID.ToString()},
+                                {"time", DateTime.Now.ToString()},
+                                {"cause", cause.ToString()}
+                            });
                             break;
                     }
                 }
@@ -265,13 +318,17 @@ namespace kIRCPlugin
             }
         }
 
+        /*
+         * Any translation key that starts with 'game' goes to game chat,
+         * while any translation key that starts with 'irc' goes to the 
+         * main IRC channel.
+         * Placeholders can be found in the repository wiki.
+         */
+
         public override Dictionary<string, string> DefaultTranslations
         {
             get
             {
-                /*
-                 * Notice: This function is not finished yet
-                */
                 return new Dictionary<string, string>()
                 {
                     {"game_ircjoin","[IRC JOIN] {irc_usernick} has joined IRC channel."},
@@ -289,7 +346,15 @@ namespace kIRCPlugin
                     {"irc_saveexec", "Save response: {irc_response}"},
                     {"game_saveexec", "[IRC] Server settings, Player items saved!"},
                     {"game_shutdownwarning", "[IRC WARNING]: SERVER IS SHUTTING DOWN IN {shutdown_secs} SECONDS!"},
-                    {"irc_shutdownwarning", "Shutting down in {shutdown_secs} seconds"}
+                    {"irc_shutdownwarning", "Shutting down in {shutdown_secs} seconds"},
+                    {"irc_onchat", "[CHAT] {playername}: {message}"},
+                    {"irc_onplayerconnect", "[CONNECT] {playername} has connected!"},
+                    {"irc_onplayerdisconnect", "[DISCONNECT] {playername} has disconnected!"},
+                    {"irc_onplayerdeath_unknown", "[DEATH] {playername} has died."},
+                    {"irc_onplayerdeath_killed", "[DEATH] {playername} has been killed by {killername}. (Cause:{cause}, Limb:{limb})"},
+                    {"irc_onplayerdeath_suicided", "[DEATH] {playername} has suicided."},
+                    {"irc_onplayerdeath_byzombie", "[DEATH] {playername} has been killed by a zombie."},
+                    {"irc_onplayerdeath_other", "[DEATH] {playername} has died (Cause: {cause})."}
                 };
             }
         }
