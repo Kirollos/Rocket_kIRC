@@ -68,6 +68,7 @@ namespace kIRCPlugin
         }
         public void Destruct()
         {
+            if (!isConnected) return;
             try
             {
                 this.Send("QUIT :Bye!");

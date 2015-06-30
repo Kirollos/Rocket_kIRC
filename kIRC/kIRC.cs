@@ -122,7 +122,8 @@ namespace kIRCPlugin
         {
             do_command.Clear();
             myirc.Destruct();
-            ircthread.Abort();
+            if(ircthread.IsAlive)
+                ircthread.Abort();
             // Rocket unload/reload does not clear this anyway...
             Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown -= Unturned_OnServerShutdown;
             Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerChatted -= Unturned_OnPlayerChatted;
