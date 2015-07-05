@@ -28,4 +28,5 @@
       <printresponse>true</printresponse> <!-- true= If you want to print the response from console, false= If otherwise. -->
     </CCommand>
   </ccommands>
+  <Debug>false</Debug> <!-- true= If you want to print incoming/outgoing IRC messages in RAW, false= If otherwise. (Since 1.7)-->
 </kIRCConfig>
