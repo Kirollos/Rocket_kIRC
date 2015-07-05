@@ -91,6 +91,11 @@ namespace kIRCPlugin
             try
             {
                 mystream.Write(_data, 0, _data.Length);
+                if (kIRC.dis.Configuration.Debug)
+                {
+                    Rocket.Unturned.Logging.Logger.Log("[kIRC DEBUG]: {" + DateTime.Now + "} << " + data);
+                    System.IO.File.AppendAllText(@".\kIRC-debug.txt", "{" + DateTime.Now + "} << " + data);
+                }
             }
             catch
             {
@@ -150,6 +155,11 @@ namespace kIRCPlugin
         public void parse(string data, kIRC unturnedclass)
         {
             if (data == "") return;
+            if (kIRC.dis.Configuration.Debug)
+            {
+                Rocket.Unturned.Logging.Logger.Log("[kIRC DEBUG]: {" + DateTime.Now + "} >> " + data);
+                System.IO.File.AppendAllText(@".\kIRC-debug.txt", "{" + DateTime.Now + "} >> " + data);
+            }
             if(data.Substring(0, 6) == "ERROR ")
             {
                 Rocket.Unturned.Logging.Logger.LogError("Error: IRC socket has closed. Reload the plugin for reconnection.");
@@ -284,6 +294,23 @@ namespace kIRCPlugin
                 if (String.IsNullOrEmpty(trailing))
                 {
                     this.Send("NAMES "+this._channel);
+                }
+            }
+            if(command == "NICK")
+            {
+                if (this.Registered)
+                {
+                    string user = prefix.Split('!')[0];
+                    if (this._nick == user)
+                        this._nick = trailing.Trim();
+                    for (int i = 0; i < this.userlist.Count; i++)
+                    {
+                        if (this.userlist[i][0] == user)
+                        {
+                            this.userlist[i][0] = trailing.Trim();
+                            break;
+                        }
+                    }
                 }
             }
             if (command == "PRIVMSG")

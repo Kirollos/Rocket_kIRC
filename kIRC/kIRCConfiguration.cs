@@ -43,6 +43,7 @@ namespace kIRCPlugin
 
         [XmlArrayItem(ElementName = "CCommand")]
         public List<kIRC_Commands> ccommands;
+        public bool Debug;
 
         public IRocketPluginConfiguration DefaultConfiguration
         {
@@ -62,7 +63,8 @@ namespace kIRCPlugin
                     allow_adminowner = true,
                     deathevent = new kDeathEvent(true, false),
                     perform = new List<CPerform>() { new CPerform("PRIVMSG #somechannel :I am a bot (EXAMPLE PERFORM)") },
-                    ccommands = new List<kIRC_Commands>() { new kIRC_Commands("experience", "experience {0}/{1}", "o", "[Player/SteamID]/[Experience]") }
+                    ccommands = new List<kIRC_Commands>() { new kIRC_Commands("experience", "experience {0}/{1}", "o", "[Player/SteamID]/[Experience]") },
+                    Debug = false
                 };
             }
         }

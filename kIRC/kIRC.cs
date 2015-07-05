@@ -146,10 +146,10 @@ namespace kIRCPlugin
                 return;
             //myirc.parse(myirc.Read(), this); // Made a thread instead :(
 
-            if (kIRCVersionChecker.lastchecked.AddHours(1) < DateTime.Now)
+            /*if (kIRCVersionChecker.lastchecked.AddHours(1) < DateTime.Now)
             {
                 kIRCVersionChecker.CheckUpdate();
-            }
+            }*/
             
             if(this.do_command.Count > 0)
             {
