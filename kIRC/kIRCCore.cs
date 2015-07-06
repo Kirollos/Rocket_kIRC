@@ -66,18 +66,27 @@ namespace kIRCPlugin
             this.Send("NICK " + this._nick);
             this.Send("USER " + this._user + " - - :" + this._realname);
         }
-        public void Destruct()
+        public bool Disconnect(string reason = "Bye!")
         {
-            if (!isConnected) return;
             try
             {
-                this.Send("QUIT :Bye!");
+                this.Send("QUIT :"+reason);
                 ircsock.Close();
+                return true;
             }
             catch
             {
+                return false;
             }
-            //ircsock.Close();
+        }
+        public void Destruct(bool disconnect = true)
+        {
+            if (!isConnected) return;
+
+            if(disconnect)
+                this.Disconnect();
+            else
+                ircsock.Close();
             isConnected = false;
         }
 
@@ -101,7 +110,7 @@ namespace kIRCPlugin
             {
                 Rocket.Unturned.Logging.Logger.LogError("kIRC Error: Send() has failed, therefore destructing.");
                 Rocket.Unturned.Logging.Logger.LogError("kIRC Error: You can reload the plugin using `rocket reload kIRC`");
-                this.Destruct();
+                this.Destruct(false);
             }
         }
         public String Read()
@@ -128,7 +137,7 @@ namespace kIRCPlugin
                 {
                     Rocket.Unturned.Logging.Logger.LogError("kIRC Error: Read() has failed, therefore destructing.");
                     Rocket.Unturned.Logging.Logger.LogError("kIRC Error: You can reload the plugin using `rocket reload kIRC`");
-                    this.Destruct();
+                    this.Destruct(false);
                     return "";
                 }
             }
