@@ -33,3 +33,8 @@ V1.6:
 - Added Rocket Translation, with this you can use your own formatted messages, Check out the repository wiki for more information.
 - Added version checker, It will perform a check every hour and will output the result in console.
 - Check the configuration.xml in the repository, to know how to configure the plugin.
+
+V1.6.2:
+
+- Bug fixes.
+- Added debug option in config. (Debug will print IRC incoming/outgoing raw messages into console and in a file).
