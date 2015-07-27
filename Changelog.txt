@@ -38,3 +38,9 @@ V1.6.2:
 
 - Bug fixes.
 - Added debug option in config. (Debug will print IRC incoming/outgoing raw messages into console and in a file).
+
+V1.6.5:
+
+- Added compatibility for Rocket v4.6.0.0
+- Unturned chat only prints GLOBAL (World) messages to IRC.
+- Minor fixes

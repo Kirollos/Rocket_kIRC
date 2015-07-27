@@ -13,18 +13,23 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
+using Rocket.API.Collections;
+using Rocket.API.Extensions;
+using Rocket.Core.Plugins;
+using Rocket.Core.Logging;
 using Rocket.Unturned;
-using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
+using Rocket.Unturned.Plugins;
+using Rocket.Unturned.Chat;
 using SDG.Unturned;
 using UnityEngine;
 using SDG;
 
 namespace kIRCPlugin
 {
-    public class CommandIRCPM : Rocket.Unturned.Commands.IRocketCommand
+    public class CommandIRCPM : IRocketCommand
     {
-        public bool RunFromConsole
+        public bool AllowFromConsole
         {
             get {return false;}
         }
@@ -49,15 +54,19 @@ namespace kIRCPlugin
             get {return "<username> <message>";}
         }
 
-        //public void Execute(RocketPlayer caller, string command) // Changes in the API, cri D:
-        public void Execute(RocketPlayer caller, string[] command)
+        public List<string> Permissions
+        {
+            get { return new List<string>(){}; }
+        }
+
+        public void Execute(Rocket.API.IRocketPlayer caller, string[] command)
         {
             if (!kIRC.dis.myirc.isConnected) return;
 
             //if (String.IsNullOrEmpty(command) || command.Split(' ').Length < 2)
             if (command.Length < 2)
             {
-                RocketChat.Say(caller, "Syntax: /ircpm [user name] [message]", Color.yellow);
+                UnturnedChat.Say(caller, "Syntax: /ircpm [user name] [message]", Color.yellow);
                 return;
             }
             else
@@ -80,12 +89,12 @@ namespace kIRCPlugin
                 
                 if (!useronline)
                 {
-                    RocketChat.Say(caller, "Error: Username \"" + username + "\" is not online.", Color.red);
+                    UnturnedChat.Say(caller, "Error: Username \"" + username + "\" is not online.", Color.red);
                     return;
                 }
                 else
                 {
-                    kIRC.dis.myirc.Notice(username, "[Unturned PM] " + caller.CharacterName + ": " + message);
+                    kIRC.dis.myirc.Notice(username, "[Unturned PM] " + caller.DisplayName + ": " + message);
                 }
             }
         }

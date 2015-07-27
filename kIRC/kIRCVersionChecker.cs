@@ -13,9 +13,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
+using Rocket.API.Collections;
+using Rocket.API.Extensions;
+using Rocket.Core.Plugins;
+using Rocket.Core.Logging;
 using Rocket.Unturned;
-using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
+using Rocket.Unturned.Plugins;
+using Rocket.Unturned.Chat;
 using SDG.Unturned;
 using UnityEngine;
 using SDG;
@@ -24,7 +29,7 @@ namespace kIRCPlugin
 {
     class kIRCVersionChecker
     {
-        public const string VERSION = "v1.6";
+        public const string VERSION = "v1.6.5";
         public const string update_checkerurl = "https://raw.githubusercontent.com/Kirollos/Rocket_kIRC/master/VERSION";
         static HttpWebRequest Updater;
         static HttpWebResponse Updater_Response;
@@ -50,7 +55,7 @@ namespace kIRCPlugin
 
             if (Updater_Response.StatusCode == HttpStatusCode.OK)
             {
-                Rocket.Unturned.Logging.Logger.Log("kIRC: Contacting updater...");
+                Logger.Log("kIRC: Contacting updater...");
                 Stream reads = Updater_Response.GetResponseStream();
                 byte[] buff = new byte[10];
                 reads.Read(buff, 0, 10);
@@ -59,17 +64,17 @@ namespace kIRCPlugin
 
                 if (ver == VERSION.ToLower().Trim())
                 {
-                    Rocket.Unturned.Logging.Logger.Log("kIRC: This plugin is using the latest version!");
+                    Logger.Log("kIRC: This plugin is using the latest version!");
                 }
                 else
                 {
-                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: Plugin version mismatch!");
-                    Rocket.Unturned.Logging.Logger.LogWarning("Current version: "+VERSION+", Latest version on repository is " + ver + ".");
+                    Logger.LogWarning("kIRC Warning: Plugin version mismatch!");
+                    Logger.LogWarning("Current version: "+VERSION+", Latest version on repository is " + ver + ".");
                 }
             }
             else
             {
-                Rocket.Unturned.Logging.Logger.LogError("kIRC Error: Failed to contact updater.");
+                Logger.LogError("kIRC Error: Failed to contact updater.");
             }
             Updater.Abort();
             Updater = null;

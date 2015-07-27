@@ -13,9 +13,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
+using Rocket.API.Collections;
+using Rocket.API.Extensions;
+using Rocket.Core.Plugins;
+using Rocket.Core.Logging;
 using Rocket.Unturned;
-using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
+using Rocket.Unturned.Plugins;
+using Rocket.Unturned.Chat;
 using SDG.Unturned;
 using UnityEngine;
 using SDG;
@@ -28,91 +33,88 @@ namespace kIRCPlugin
         public kIRCCore myirc;
         Thread ircthread;
 
-        public Dictionary<string, byte> _playershealth = new Dictionary<string, byte>();
-
         public List<kIRC_PushCommand> do_command;
 
         protected override void Load()
         {
             dis = this;
             this.do_command = new List<kIRC_PushCommand>();
-            if(this.Configuration.server == "EDITME")
+            if(this.Configuration.Instance.server == "EDITME")
             {
-                Rocket.Unturned.Logging.Logger.LogError("kIRC Error: You did not configure the plugin! Unloading now...");
+                Logger.LogError("kIRC Error: You did not configure the plugin! Unloading now...");
                 this.Unload();
                 return;
             }
-            if(this.Configuration.parameter_delimiter == " ")
+            if(this.Configuration.Instance.parameter_delimiter == " ")
             {
-                Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
+                Logger.LogWarning("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
             }
-            myirc = new kIRCCore(this.Configuration.server, this.Configuration.port, this.Configuration.nick, this.Configuration.user, this.Configuration.realname, this.Configuration.channel, this.Configuration.password);
+            myirc = new kIRCCore(this.Configuration.Instance.server, this.Configuration.Instance.port, this.Configuration.Instance.nick, this.Configuration.Instance.user, this.Configuration.Instance.realname, this.Configuration.Instance.channel, this.Configuration.Instance.password);
             
             // Command Prefix
-            if(!String.IsNullOrEmpty(this.Configuration.command_prefix))
+            if (!String.IsNullOrEmpty(this.Configuration.Instance.command_prefix))
             {
-                if(this.Configuration.command_prefix.Length == 1)
+                if (this.Configuration.Instance.command_prefix.Length == 1)
                 {
-                    myirc.SetCommandPrefix(System.Convert.ToChar(this.Configuration.command_prefix));
+                    myirc.SetCommandPrefix(System.Convert.ToChar(this.Configuration.Instance.command_prefix));
                 }
                 else
                 {
-                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: command_prefix is not a character! Setting default to '!'");
-                    this.Configuration.command_prefix = "!";
+                    Logger.LogWarning("kIRC Warning: command_prefix is not a character! Setting default to '!'");
+                    this.Configuration.Instance.command_prefix = "!";
                     myirc.SetCommandPrefix('!');
                 }
             }
             else
             {
-                Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: command_prefix is not set! Setting default to '!'");
-                this.Configuration.command_prefix = "!";
+                Logger.LogWarning("kIRC Warning: command_prefix is not set! Setting default to '!'");
+                this.Configuration.Instance.command_prefix = "!";
                 myirc.SetCommandPrefix('!');
             }
 
             // Parameter Delimiter
-            if (!String.IsNullOrEmpty(this.Configuration.parameter_delimiter))
+            if (!String.IsNullOrEmpty(this.Configuration.Instance.parameter_delimiter))
             {
-                
-                if (this.Configuration.parameter_delimiter.Length == 1)
+
+                if (this.Configuration.Instance.parameter_delimiter.Length == 1)
                 {
-                    if (this.Configuration.parameter_delimiter == " ")
+                    if (this.Configuration.Instance.parameter_delimiter == " ")
                     {
-                        Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
-                        this.Configuration.parameter_delimiter = "/";
+                        Logger.LogWarning("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
+                        this.Configuration.Instance.parameter_delimiter = "/";
                         myirc.SetParameterDelimiter('/');
                     }
                     else
-                        myirc.SetParameterDelimiter(System.Convert.ToChar(this.Configuration.parameter_delimiter));
+                        myirc.SetParameterDelimiter(System.Convert.ToChar(this.Configuration.Instance.parameter_delimiter));
                 }
                 else
                 {
-                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter_delimiter is not set! Setting default to \"/\"");
-                    this.Configuration.parameter_delimiter = "/";
+                    Logger.LogWarning("kIRC Warning: parameter_delimiter is not set! Setting default to \"/\"");
+                    this.Configuration.Instance.parameter_delimiter = "/";
                     myirc.SetParameterDelimiter('/');
                 }
             }
             else
             {
-                Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: parameter_delimiter is not set! Setting default to \"/\"");
-                this.Configuration.parameter_delimiter = "/";
+                Logger.LogWarning("kIRC Warning: parameter_delimiter is not set! Setting default to \"/\"");
+                this.Configuration.Instance.parameter_delimiter = "/";
                 myirc.SetParameterDelimiter('/');
             }
 
-            myirc.SetAllowAdminOwner(this.Configuration.allow_adminowner);
-            myirc.cperform = this.Configuration.perform;
-            myirc.SetCustomCommands(this.Configuration.ccommands);
+            myirc.SetAllowAdminOwner(this.Configuration.Instance.allow_adminowner);
+            myirc.cperform = this.Configuration.Instance.perform;
+            myirc.SetCustomCommands(this.Configuration.Instance.ccommands);
 
             ircthread = new Thread( () => myirc.loopparsing(this));
             ircthread.Start();
 
-            Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown += Unturned_OnServerShutdown;
-            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerChatted += Unturned_OnPlayerChatted;
-            Rocket.Unturned.Events.RocketServerEvents.OnPlayerConnected += Unturned_OnPlayerConnected;
-            Rocket.Unturned.Events.RocketServerEvents.OnPlayerDisconnected += Unturned_OnPlayerDisconnected;
-            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerDeath += Unturned_OnPlayerDeath;
-            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerUpdateHealth += Unturned_OnPlayerUpdateHealth;
+            U.Events.OnShutdown += Unturned_OnServerShutdown;
+            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerChatted += Unturned_OnPlayerChatted;
+            U.Events.OnPlayerConnected += Unturned_OnPlayerConnected;
+            U.Events.OnPlayerDisconnected += Unturned_OnPlayerDisconnected;
+            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerDeath += Unturned_OnPlayerDeath;
 
-            Rocket.Unturned.Logging.Logger.Log("kIRC Loaded! Version: " + kIRCVersionChecker.VERSION);
+            Logger.Log("kIRC Loaded! Version: " + kIRCVersionChecker.VERSION);
 
             kIRCVersionChecker.CheckUpdate();
 
@@ -125,13 +127,11 @@ namespace kIRCPlugin
             if(ircthread.IsAlive)
                 ircthread.Abort();
             // Rocket unload/reload does not clear this anyway...
-            Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown -= Unturned_OnServerShutdown;
-            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerChatted -= Unturned_OnPlayerChatted;
-            Rocket.Unturned.Events.RocketServerEvents.OnPlayerConnected -= Unturned_OnPlayerConnected;
-            Rocket.Unturned.Events.RocketServerEvents.OnPlayerDisconnected -= Unturned_OnPlayerDisconnected;
-            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerDeath -= Unturned_OnPlayerDeath;
-            Rocket.Unturned.Events.RocketPlayerEvents.OnPlayerUpdateHealth -= Unturned_OnPlayerUpdateHealth;
-            _playershealth.Clear();
+            U.Events.OnShutdown += Unturned_OnServerShutdown;
+            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerChatted += Unturned_OnPlayerChatted;
+            U.Events.OnPlayerConnected += Unturned_OnPlayerConnected;
+            U.Events.OnPlayerDisconnected += Unturned_OnPlayerDisconnected;
+            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerDeath += Unturned_OnPlayerDeath;
         }
 
         private void Unturned_OnServerShutdown()
@@ -142,7 +142,7 @@ namespace kIRCPlugin
 
         private void FixedUpdate()
         {
-            if (!this.Loaded)
+            if (this.State != PluginState.Loaded)
                 return;
             //myirc.parse(myirc.Read(), this); // Made a thread instead :(
 
@@ -195,11 +195,12 @@ namespace kIRCPlugin
             }
         }
 
-        private void Unturned_OnPlayerChatted(RocketPlayer player, ref Color color, string message)
+        private void Unturned_OnPlayerChatted(UnturnedPlayer player, ref Color color, string message, EChatMode chatMode)
         {
             if (!myirc.isConnected) return;
             if (message[0] == '/') return; // Blocking commands from echoing in the channel
             //myirc.Say(myirc._channel, "[CHAT] " + player.CharacterName + ": " + message);
+            if (chatMode != EChatMode.GLOBAL) return;
             kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onchat", new Dictionary<string, string>()
             {
                 {"playername", player.CharacterName},
@@ -208,7 +209,7 @@ namespace kIRCPlugin
             });
         }
         
-        private void Unturned_OnPlayerConnected(RocketPlayer player)
+        private void Unturned_OnPlayerConnected(UnturnedPlayer player)
         {
             if (!myirc.isConnected) return;
             //myirc.Say(myirc._channel, "[CONNECT] " + player.CharacterName + " has connected!");
@@ -218,10 +219,9 @@ namespace kIRCPlugin
                 {"steamid", player.CSteamID.ToString()},
                 {"time", DateTime.Now.ToString()}
             });
-            _playershealth.Add(player.CharacterName, 100);
         }
 
-        private void Unturned_OnPlayerDisconnected(RocketPlayer player)
+        private void Unturned_OnPlayerDisconnected(UnturnedPlayer player)
         {
             if (!myirc.isConnected) return;
             //myirc.Say(myirc._channel, "[DISCONNECT] " + player.CharacterName + " has disconnected!");
@@ -231,18 +231,14 @@ namespace kIRCPlugin
                 {"steamid", player.CSteamID.ToString()},
                 {"time", DateTime.Now.ToString()}
             });
-            if(_playershealth.ContainsKey(player.CharacterName))
-            {
-                _playershealth.Remove(player.CharacterName);
-            }
         }
 
-        private void Unturned_OnPlayerDeath(RocketPlayer player, EDeathCause cause, ELimb limb, Steamworks.CSteamID murderer)
+        private void Unturned_OnPlayerDeath(UnturnedPlayer player, EDeathCause cause, ELimb limb, Steamworks.CSteamID murderer)
         {
             if (!myirc.isConnected) return;
-            if (Configuration.deathevent.show)
+            if (Configuration.Instance.deathevent.show)
             {
-                if(RocketPlayer.FromCSteamID(murderer) == null)
+                if(UnturnedPlayer.FromCSteamID(murderer) == null)
                     //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has died.");
                     kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdeath_unknown", new Dictionary<string, string>()
                     {
@@ -267,12 +263,12 @@ namespace kIRCPlugin
                                 {"time", DateTime.Now.ToString()},
                                 {"cause", cause.ToString()},
                                 {"limb", limb.ToString()},
-                                {"killername", RocketPlayer.FromCSteamID(murderer).CharacterName},
+                                {"killername", UnturnedPlayer.FromCSteamID(murderer).CharacterName},
                                 {"killersteamid", murderer.ToString()}
                             });
                             break;
                         case EDeathCause.SUICIDE:
-                            if(this.Configuration.deathevent.suicides)
+                            if (this.Configuration.Instance.deathevent.suicides)
                                 //myirc.Say(myirc._channel, "[DEATH] " + player.CharacterName + " has suicided.");
                                 kIRCTranslate.IRC_SayTranslation(myirc, myirc._channel, "irc_onplayerdeath_suicided", new Dictionary<string, string>()
                                 {
@@ -306,19 +302,6 @@ namespace kIRCPlugin
             }
         }
 
-        private void Unturned_OnPlayerUpdateHealth(RocketPlayer player, byte health)
-        {
-            if (!myirc.isConnected) return;
-            if(_playershealth.ContainsKey(player.CharacterName))
-            {
-                _playershealth[player.CharacterName] = health;
-            }
-            else
-            {
-                _playershealth.Add(player.CharacterName, health);
-            }
-        }
-
         /*
          * Any translation key that starts with 'game' goes to game chat,
          * while any translation key that starts with 'irc' goes to the 
@@ -326,11 +309,11 @@ namespace kIRCPlugin
          * Placeholders can be found in the repository wiki.
          */
 
-        public override Dictionary<string, string> DefaultTranslations
+        public override TranslationList DefaultTranslations
         {
             get
             {
-                return new Dictionary<string, string>()
+                return new TranslationList()
                 {
                     {"game_ircjoin","[IRC JOIN] {irc_usernick} has joined IRC channel."},
                     {"game_ircpart","[IRC PART] {irc_usernick} has parted IRC channel."},

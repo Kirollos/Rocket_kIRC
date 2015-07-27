@@ -37,13 +37,16 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>libs\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.API">
+    <Reference Include="Rocket.API, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\Rocket.API.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Core">
+    <Reference Include="Rocket.Core, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\Rocket.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Unturned">
+    <Reference Include="Rocket.Unturned, Version=4.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\Rocket.Unturned.dll</HintPath>
     </Reference>
     <Reference Include="System" />

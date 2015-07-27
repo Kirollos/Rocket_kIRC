@@ -13,9 +13,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
+using Rocket.API.Collections;
+using Rocket.API.Extensions;
+using Rocket.Core.Plugins;
+using Rocket.Core.Logging;
 using Rocket.Unturned;
-using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
+using Rocket.Unturned.Plugins;
+using Rocket.Unturned.Chat;
 using SDG.Unturned;
 using UnityEngine;
 using SDG;
@@ -100,16 +105,16 @@ namespace kIRCPlugin
             try
             {
                 mystream.Write(_data, 0, _data.Length);
-                if (kIRC.dis.Configuration.Debug)
+                if (kIRC.dis.Configuration.Instance.Debug)
                 {
-                    Rocket.Unturned.Logging.Logger.Log("[kIRC DEBUG]: {" + DateTime.Now + "} << " + data);
+                    Logger.Log("[kIRC DEBUG]: {" + DateTime.Now + "} << " + data);
                     System.IO.File.AppendAllText(@".\kIRC-debug.txt", "{" + DateTime.Now + "} << " + data);
                 }
             }
             catch
             {
-                Rocket.Unturned.Logging.Logger.LogError("kIRC Error: Send() has failed, therefore destructing.");
-                Rocket.Unturned.Logging.Logger.LogError("kIRC Error: You can reload the plugin using `rocket reload kIRC`");
+                Logger.LogError("kIRC Error: Send() has failed, therefore destructing.");
+                Logger.LogError("kIRC Error: You can reload the plugin using `rocket reload kIRC`");
                 this.Destruct(false);
             }
         }
@@ -135,8 +140,8 @@ namespace kIRCPlugin
                 }
                 catch
                 {
-                    Rocket.Unturned.Logging.Logger.LogError("kIRC Error: Read() has failed, therefore destructing.");
-                    Rocket.Unturned.Logging.Logger.LogError("kIRC Error: You can reload the plugin using `rocket reload kIRC`");
+                    Logger.LogError("kIRC Error: Read() has failed, therefore destructing.");
+                    Logger.LogError("kIRC Error: You can reload the plugin using `rocket reload kIRC`");
                     this.Destruct(false);
                     return "";
                 }
@@ -164,14 +169,14 @@ namespace kIRCPlugin
         public void parse(string data, kIRC unturnedclass)
         {
             if (data == "") return;
-            if (kIRC.dis.Configuration.Debug)
+            if (kIRC.dis.Configuration.Instance.Debug)
             {
-                Rocket.Unturned.Logging.Logger.Log("[kIRC DEBUG]: {" + DateTime.Now + "} >> " + data);
+                Logger.Log("[kIRC DEBUG]: {" + DateTime.Now + "} >> " + data);
                 System.IO.File.AppendAllText(@".\kIRC-debug.txt", "{" + DateTime.Now + "} >> " + data);
             }
             if(data.Substring(0, 6) == "ERROR ")
             {
-                Rocket.Unturned.Logging.Logger.LogError("Error: IRC socket has closed. Reload the plugin for reconnection.");
+                Logger.LogError("Error: IRC socket has closed. Reload the plugin for reconnection.");
                 this.Destruct();
             }
             // Regex taken from (http://calebdelnay.com/blog/2010/11/parsing-the-irc-message-format-as-a-client)
@@ -249,7 +254,7 @@ namespace kIRCPlugin
             }
             if (command == "433")
             {
-                Rocket.Unturned.Logging.Logger.LogError("Error: Nickname taken. Reload the plugin for reconnection.");
+                Logger.LogError("Error: Nickname taken. Reload the plugin for reconnection.");
                 this.Destruct();
             }
             if(command == "JOIN")
@@ -478,7 +483,7 @@ namespace kIRCPlugin
                             string pname = msg.Split(this._parameter_delimiter)[0];
                             string message = msg.Split(this._parameter_delimiter)[1];
 
-                            RocketPlayer pPointer = RocketPlayer.FromName(pname);
+                            UnturnedPlayer pPointer = UnturnedPlayer.FromName(pname);
                             if (pPointer == null || pPointer.CharacterName != pname)
                                 this.Say(this._channel, "[ERROR] Player " + pname + " not found.");
                             else
@@ -506,7 +511,7 @@ namespace kIRCPlugin
                         else
                         {
                             string pname = msg.Trim();
-                            RocketPlayer pPointer = RocketPlayer.FromName(pname);
+                            UnturnedPlayer pPointer = UnturnedPlayer.FromName(pname);
 
                             if (pPointer == null || pPointer.CharacterName != pname)
                             {
@@ -520,7 +525,7 @@ namespace kIRCPlugin
                             //this.Notice(user, "Health: " + pPointer.Health + "%"); // pPointer.Health ALWAYS returns zero for some reason..
                                                                                      // Therefore using another method to update player health
                                                                                      // on each health update event.
-                            this.Notice(user, "Health: " + unturnedclass._playershealth[pPointer.CharacterName] + "%");
+                            this.Notice(user, "Health: " + pPointer.Health); // Fixed in Rocket v4.6.0.0
                             this.Notice(user, "Hunger: " + pPointer.Hunger + "%");
                             this.Notice(user, "Thirst: " + pPointer.Thirst + "%");
                             this.Notice(user, "Infection: " + pPointer.Infection + "%");
@@ -563,12 +568,12 @@ namespace kIRCPlugin
                         {
                             string pname = msg.Split(this._parameter_delimiter)[0];
                             string reason = msg.Split(this._parameter_delimiter)[1];
-                            RocketPlayer pPointer = RocketPlayer.FromName(pname);
+                            UnturnedPlayer pPointer = UnturnedPlayer.FromName(pname);
                             if (pPointer == null || pPointer.CharacterName!=pname)
                                 this.Say(this._channel, "[ERROR] Player " + pname + " not found.");
                             else
                             {
-                                RocketPlayer.FromName(pname).Kick(reason);
+                                UnturnedPlayer.FromName(pname).Kick(reason);
                                 //this.Say(this._channel, "[SUCCESS] Player " + pname + " is kicked!");
                                 kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_kicksuccess", new Dictionary<string, string>()
                                 {
@@ -604,7 +609,7 @@ namespace kIRCPlugin
                             string reason = msg.Split(this._parameter_delimiter/*' '*/)[2];
                             if (!Regex.IsMatch(pname, @"^\d+$")) // If not SteamID
                             {
-                                RocketPlayer pPointer = RocketPlayer.FromName(pname);
+                                UnturnedPlayer pPointer = UnturnedPlayer.FromName(pname);
                                 if (pPointer == null || pPointer.CharacterName != pname)
                                 {
                                     this.Say(this._channel, "[ERROR] Player " + pname + " not found.");
@@ -948,7 +953,7 @@ namespace kIRCPlugin
                                         }
                                         if (!String.IsNullOrEmpty(refer.GAMEmsg_onfire.Trim()))
                                         {
-                                            RocketChat.Say(refer.GAMEmsg_onfire);
+                                            UnturnedChat.Say(refer.GAMEmsg_onfire);
                                         }
                                     });
                                     pcmd.onexec((string response) =>
@@ -959,7 +964,7 @@ namespace kIRCPlugin
                                         }
                                         if (!String.IsNullOrEmpty(refer.GAMEmsg_onexec.Trim()))
                                         {
-                                            RocketChat.Say(refer.GAMEmsg_onexec);
+                                            UnturnedChat.Say(refer.GAMEmsg_onexec);
                                         }
 
                                         if(refer.printresponse == true)

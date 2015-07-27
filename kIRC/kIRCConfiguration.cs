@@ -13,9 +13,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
+using Rocket.API.Collections;
+using Rocket.API.Extensions;
+using Rocket.Core.Plugins;
+using Rocket.Core.Logging;
 using Rocket.Unturned;
-using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
+using Rocket.Unturned.Plugins;
+using Rocket.Unturned.Chat;
 using SDG.Unturned;
 using UnityEngine;
 using SDG;
@@ -24,50 +29,27 @@ namespace kIRCPlugin
 {
     public class kIRCConfig : IRocketPluginConfiguration
     {
-        public string server;
-        public int port;
+        public string server = "EDITME";
+        public int port = 6667;
         public string
-            nick,
-            user,
-            realname,
-            password,
-            channel,
-            command_prefix,
-            parameter_delimiter
+            nick = "EDITME",
+            user = "EDITME",
+            realname = "EDITME",
+            password = "EDITME OR LEAVE IT BLANK",
+            channel = "#EDITME",
+            command_prefix = "!",
+            parameter_delimiter = "/"
             ;
-        public bool allow_adminowner;
-        public kDeathEvent deathevent;
+        public bool allow_adminowner = true;
+        public kDeathEvent deathevent = new kDeathEvent(true, false);
 
         [XmlArrayItem(ElementName = "Perform")]
-        public List<CPerform> perform;
+        public List<CPerform> perform = new List<CPerform>() { new CPerform("PRIVMSG #somechannel :I am a bot (EXAMPLE PERFORM)") };
 
         [XmlArrayItem(ElementName = "CCommand")]
-        public List<kIRC_Commands> ccommands;
-        public bool Debug;
+        public List<kIRC_Commands> ccommands = new List<kIRC_Commands>() { new kIRC_Commands("experience", "experience {0}/{1}", "o", "[Player/SteamID]/[Experience]") };
+        public bool Debug = false;
 
-        public IRocketPluginConfiguration DefaultConfiguration
-        {
-            get
-            {
-                return new kIRCConfig()
-                {
-                    server = "EDITME",
-                    port = 6667,
-                    nick = "EDITME",
-                    user = "EDITME",
-                    realname = "EDITME",
-                    password = "EDITME OR LEAVE IT BLANK",
-                    channel = "#EDITME",
-                    command_prefix = "!",
-                    parameter_delimiter = "/",
-                    allow_adminowner = true,
-                    deathevent = new kDeathEvent(true, false),
-                    perform = new List<CPerform>() { new CPerform("PRIVMSG #somechannel :I am a bot (EXAMPLE PERFORM)") },
-                    ccommands = new List<kIRC_Commands>() { new kIRC_Commands("experience", "experience {0}/{1}", "o", "[Player/SteamID]/[Experience]") },
-                    Debug = false
-                };
-            }
-        }
     }
 
     public class kDeathEvent

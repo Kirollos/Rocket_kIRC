@@ -13,9 +13,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
+using Rocket.API.Collections;
+using Rocket.API.Extensions;
+using Rocket.Core.Plugins;
+using Rocket.Core.Logging;
 using Rocket.Unturned;
-using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
+using Rocket.Unturned.Plugins;
+using Rocket.Unturned.Chat;
 using SDG.Unturned;
 using UnityEngine;
 using SDG;
@@ -32,8 +37,17 @@ namespace kIRCPlugin
     {
         public static string Translate(string key, Dictionary<string, string> parameters)
         {
-            if (!kIRC.dis.Translations.ContainsKey(key))
+            //if (!kIRC.dis.Translations.ContainsKey(key))
+            //    return "";
+            try
+            {
+                if (String.IsNullOrEmpty(kIRC.dis.Translations.Instance[key]))
+                    return "";
+            }
+            catch
+            {
                 return "";
+            }
             string retval = kIRC.dis.Translate(key, new object[] {});
 
             foreach(var lekey in parameters)
@@ -56,13 +70,13 @@ namespace kIRCPlugin
                     colourid = (mIRC_Colours) Enum.Parse(typeof(mIRC_Colours), colourname);
                     if(!Enum.IsDefined(typeof(mIRC_Colours), colourid) || colourid.ToString() == "None")
                     {
-                        Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: IRC colour (" + colourname + ") is invalid. Using colour ID 0.");
+                        Logger.LogWarning("kIRC Warning: IRC colour (" + colourname + ") is invalid. Using colour ID 0.");
                         colourid = mIRC_Colours.black; // 0
                     }
                 }
                 catch
                 {
-                    Rocket.Unturned.Logging.Logger.LogWarning("kIRC Warning: IRC colour (" + colourname + ") is invalid. Using colour ID 0.");
+                    Logger.LogWarning("kIRC Warning: IRC colour (" + colourname + ") is invalid. Using colour ID 0.");
                     colourid = mIRC_Colours.black; // 0
                 }
 
@@ -87,20 +101,20 @@ namespace kIRCPlugin
             return;
         }
 
-        public static void Rocket_ChatSay(string key, Color color, Dictionary<string, string> _parameters, RocketPlayer ppointer = null)
+        public static void Rocket_ChatSay(string key, Color color, Dictionary<string, string> _parameters, UnturnedPlayer ppointer = null)
         {
             if (ppointer != null)
-            RocketChat.Say(ppointer, kIRCTranslate.Translate(key, _parameters), color);
+            UnturnedChat.Say(ppointer, kIRCTranslate.Translate(key, _parameters), color);
             else
-                RocketChat.Say(kIRCTranslate.Translate(key, _parameters), color);    
+                UnturnedChat.Say(kIRCTranslate.Translate(key, _parameters), color);    
         }
 
-        public static void Rocket_ChatSay(string key, Dictionary<string, string> _parameters, RocketPlayer ppointer = null)
+        public static void Rocket_ChatSay(string key, Dictionary<string, string> _parameters, UnturnedPlayer ppointer = null)
         {
             if(ppointer != null)
-                RocketChat.Say(ppointer, kIRCTranslate.Translate(key, _parameters));
+                UnturnedChat.Say(ppointer, kIRCTranslate.Translate(key, _parameters));
             else
-                RocketChat.Say(kIRCTranslate.Translate(key, _parameters));
+                UnturnedChat.Say(kIRCTranslate.Translate(key, _parameters));
         }
     }
 }
