@@ -29,27 +29,44 @@ namespace kIRCPlugin
 {
     public class kIRCConfig : IRocketPluginConfiguration
     {
-        public string server = "EDITME";
-        public int port = 6667;
+        public string server;
+        public int port;
         public string
-            nick = "EDITME",
-            user = "EDITME",
-            realname = "EDITME",
-            password = "EDITME OR LEAVE IT BLANK",
-            channel = "#EDITME",
-            command_prefix = "!",
-            parameter_delimiter = "/"
+            nick,
+            user,
+            realname,
+            password,
+            channel,
+            command_prefix,
+            parameter_delimiter
             ;
-        public bool allow_adminowner = true;
-        public kDeathEvent deathevent = new kDeathEvent(true, false);
+        public bool allow_adminowner;
+        public kDeathEvent deathevent;
 
         [XmlArrayItem(ElementName = "Perform")]
-        public List<CPerform> perform = new List<CPerform>() { new CPerform("PRIVMSG #somechannel :I am a bot (EXAMPLE PERFORM)") };
+        public List<CPerform> perform;
 
         [XmlArrayItem(ElementName = "CCommand")]
-        public List<kIRC_Commands> ccommands = new List<kIRC_Commands>() { new kIRC_Commands("experience", "experience {0}/{1}", "o", "[Player/SteamID]/[Experience]") };
-        public bool Debug = false;
+        public List<kIRC_Commands> ccommands;
+        public bool Debug;
 
+        public void LoadDefaults()
+        {
+            server = "EDITME";
+            port = 6667;
+            nick = "EDITME";
+            user = "EDITME";
+            realname = "EDITME";
+            password = "EDITME OR LEAVE IT BLANK";
+            channel = "#EDITME";
+            command_prefix = "!";
+            parameter_delimiter = "/";
+            allow_adminowner = true;
+            deathevent = new kDeathEvent(true, false);
+            perform = new List<CPerform>() { new CPerform("PRIVMSG #somechannel :I am a bot (EXAMPLE PERFORM)") };
+            ccommands = new List<kIRC_Commands>() { new kIRC_Commands("experience", "experience {0}/{1}", "o", "[Player/SteamID]/[Experience]") };
+            Debug = false;
+        }
     }
 
     public class kDeathEvent

@@ -44,3 +44,8 @@ V1.6.5:
 - Added compatibility for Rocket v4.6.0.0
 - Unturned chat only prints GLOBAL (World) messages to IRC.
 - Minor fixes
+
+V1.6.6:
+
+- Compatible with latest rocket.
+- Bug fixes when checking for updates

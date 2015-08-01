@@ -31,16 +31,13 @@ namespace kIRCPlugin
     {
         public const string VERSION = "v1.6.5";
         public const string update_checkerurl = "https://raw.githubusercontent.com/Kirollos/Rocket_kIRC/master/VERSION";
-        static HttpWebRequest Updater;
-        static HttpWebResponse Updater_Response;
         public static DateTime lastchecked;
+        static bool plswaitimchecking = false;
 
         private static bool inited = false;
 
         public static void Init()
         {
-            Updater = null;
-            Updater_Response = null;
             if (inited) return;
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             inited = true;
@@ -49,71 +46,87 @@ namespace kIRCPlugin
 
         public static void CheckUpdate()
         {
-            kIRCVersionChecker.Init();
-            Updater = (HttpWebRequest)HttpWebRequest.Create(update_checkerurl);
-            Updater_Response = (HttpWebResponse)Updater.GetResponse();
+            try {
+                kIRCVersionChecker.Init();
+                HttpWebRequest Updater;
+                HttpWebResponse Updater_Response;
+                Updater = (HttpWebRequest)HttpWebRequest.Create(update_checkerurl);
+                Updater_Response = (HttpWebResponse)Updater.GetResponse();
 
-            if (Updater_Response.StatusCode == HttpStatusCode.OK)
-            {
-                Logger.Log("kIRC: Contacting updater...");
-                Stream reads = Updater_Response.GetResponseStream();
-                byte[] buff = new byte[10];
-                reads.Read(buff, 0, 10);
-                string ver = Encoding.UTF8.GetString(buff);
-                ver = ver.ToLower().Trim(new[] { ' ', '\r', '\n', '\t' }).TrimEnd(new[] { '\0' });
-
-                if (ver == VERSION.ToLower().Trim())
+                if (Updater_Response.StatusCode == HttpStatusCode.OK)
                 {
-                    Logger.Log("kIRC: This plugin is using the latest version!");
+                    Logger.Log("kIRC: Contacting updater...");
+                    Stream reads = Updater_Response.GetResponseStream();
+                    byte[] buff = new byte[10];
+                    reads.Read(buff, 0, 10);
+                    string ver = Encoding.UTF8.GetString(buff);
+                    ver = ver.ToLower().Trim(new[] { ' ', '\r', '\n', '\t' }).TrimEnd(new[] { '\0' });
+
+                    if (ver == VERSION.ToLower().Trim())
+                    {
+                        Logger.Log("kIRC: This plugin is using the latest version!");
+                    }
+                    else
+                    {
+                        Logger.LogWarning("kIRC Warning: Plugin version mismatch!");
+                        Logger.LogWarning("Current version: " + VERSION + ", Latest version on repository is " + ver + ".");
+                    }
                 }
                 else
                 {
-                    Logger.LogWarning("kIRC Warning: Plugin version mismatch!");
-                    Logger.LogWarning("Current version: "+VERSION+", Latest version on repository is " + ver + ".");
+                    Logger.LogError("kIRC Error: Failed to contact updater.");
                 }
+                Updater.Abort();
             }
-            else
+            catch(Exception ex)
             {
-                Logger.LogError("kIRC Error: Failed to contact updater.");
+                Logger.LogError("Failed to check for update!");
+                Logger.LogException(ex);
             }
-            Updater.Abort();
-            Updater = null;
-            Updater_Response = null;
             lastchecked = DateTime.Now;
         }
 
         public static void CheckUpdate(kIRCCore irc, string irc_target)
         {
-            Updater = (HttpWebRequest)HttpWebRequest.Create(update_checkerurl);
-            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            Updater_Response = (HttpWebResponse)Updater.GetResponse();
+            try {
+                HttpWebRequest Updater;
+                HttpWebResponse Updater_Response;
+                Updater = (HttpWebRequest)HttpWebRequest.Create(update_checkerurl);
+                ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+                Updater_Response = (HttpWebResponse)Updater.GetResponse();
 
-            if (Updater_Response.StatusCode == HttpStatusCode.OK)
-            {
-                irc.Say(irc_target, "kIRC: Contacting updater...");
-                Stream reads = Updater_Response.GetResponseStream();
-                byte[] buff = new byte[10];
-                reads.Read(buff, 0, 10);
-                string ver = Encoding.UTF8.GetString(buff);
-                ver = ver.ToLower().Trim(new[] { ' ', '\r', '\n', '\t' }).TrimEnd(new[] { '\0' });
-
-                if (ver == VERSION.ToLower().Trim())
+                if (Updater_Response.StatusCode == HttpStatusCode.OK)
                 {
-                    irc.Say(irc_target, "kIRC: This plugin is using the latest version!");
+                    irc.Say(irc_target, "kIRC: Contacting updater...");
+                    Stream reads = Updater_Response.GetResponseStream();
+                    byte[] buff = new byte[10];
+                    reads.Read(buff, 0, 10);
+                    string ver = Encoding.UTF8.GetString(buff);
+                    ver = ver.ToLower().Trim(new[] { ' ', '\r', '\n', '\t' }).TrimEnd(new[] { '\0' });
+
+                    if (ver == VERSION.ToLower().Trim())
+                    {
+                        irc.Say(irc_target, "kIRC: This plugin is using the latest version!");
+                    }
+                    else
+                    {
+                        irc.Say(irc_target, "kIRC Warning: Plugin version mismatch!");
+                        irc.Say(irc_target, "Current version: " + VERSION + ", Latest version on repository is " + ver + ".");
+                    }
                 }
                 else
                 {
-                    irc.Say(irc_target, "kIRC Warning: Plugin version mismatch!");
-                    irc.Say(irc_target, "Current version: " + VERSION + ", Latest version on repository is " + ver + ".");
+                    irc.Say(irc_target, "kIRC Error: Failed to contact updater.");
                 }
+                Updater.Abort();
+                Updater = null;
+                Updater_Response = null;
             }
-            else
+            catch (Exception ex)
             {
-                irc.Say(irc_target, "kIRC Error: Failed to contact updater.");
+                Logger.LogError("Failed to check for update!");
+                Logger.LogException(ex);
             }
-            Updater.Abort();
-            Updater = null;
-            Updater_Response = null;
             lastchecked = DateTime.Now;
         }
     }
