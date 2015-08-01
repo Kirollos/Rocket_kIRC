@@ -127,11 +127,11 @@ namespace kIRCPlugin
             if(ircthread.IsAlive)
                 ircthread.Abort();
             // Rocket unload/reload does not clear this anyway...
-            U.Events.OnShutdown += Unturned_OnServerShutdown;
-            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerChatted += Unturned_OnPlayerChatted;
-            U.Events.OnPlayerConnected += Unturned_OnPlayerConnected;
-            U.Events.OnPlayerDisconnected += Unturned_OnPlayerDisconnected;
-            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerDeath += Unturned_OnPlayerDeath;
+            U.Events.OnShutdown -= Unturned_OnServerShutdown;
+            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerChatted -= Unturned_OnPlayerChatted;
+            U.Events.OnPlayerConnected -= Unturned_OnPlayerConnected;
+            U.Events.OnPlayerDisconnected -= Unturned_OnPlayerDisconnected;
+            Rocket.Unturned.Events.UnturnedPlayerEvents.OnPlayerDeath -= Unturned_OnPlayerDeath;
         }
 
         private void Unturned_OnServerShutdown()

@@ -32,7 +32,6 @@ namespace kIRCPlugin
         public const string VERSION = "v1.6.5";
         public const string update_checkerurl = "https://raw.githubusercontent.com/Kirollos/Rocket_kIRC/master/VERSION";
         public static DateTime lastchecked;
-        static bool plswaitimchecking = false;
 
         private static bool inited = false;
 
