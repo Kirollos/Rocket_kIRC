@@ -2,6 +2,7 @@
 <kIRCConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <server>EDITME</server> <!-- the IRC server -->
   <port>6667</port> <!-- the IRC port -->
+  <spassword>EDITME</spassword> <!-- The IRC server password, leave it blank for none -->
   <nick>EDITME</nick> <!-- the bot's nickname -->
   <user>EDITME</user> <!-- the bot's ident name -->
   <realname>EDITME</realname> <!-- the bot's real name -->
