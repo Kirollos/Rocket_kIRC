@@ -49,7 +49,7 @@ namespace kIRCPlugin
             {
                 Logger.LogWarning("kIRC Warning: parameter delimiter cannot be \" \"! Therefore, setting it to \"/\"");
             }
-            myirc = new kIRCCore(this.Configuration.Instance.server, this.Configuration.Instance.port, this.Configuration.Instance.nick, this.Configuration.Instance.user, this.Configuration.Instance.realname, this.Configuration.Instance.channel, this.Configuration.Instance.password);
+            myirc = new kIRCCore(this.Configuration.Instance.server, this.Configuration.Instance.port, this.Configuration.Instance.nick, this.Configuration.Instance.user, this.Configuration.Instance.realname, this.Configuration.Instance.channel, this.Configuration.Instance.password, this.Configuration.Instance.spassword);
             
             // Command Prefix
             if (!String.IsNullOrEmpty(this.Configuration.Instance.command_prefix))

@@ -32,6 +32,7 @@ namespace kIRCPlugin
         public string server;
         public int port;
         public string
+            spassword,
             nick,
             user,
             realname,
@@ -54,6 +55,7 @@ namespace kIRCPlugin
         {
             server = "EDITME";
             port = 6667;
+            spassword = "";
             nick = "EDITME";
             user = "EDITME";
             realname = "EDITME";

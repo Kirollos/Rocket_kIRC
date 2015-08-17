@@ -38,6 +38,7 @@ namespace kIRCPlugin
         public string _channel;
         public char _command_prefix;
         public char _parameter_delimiter;
+        public string _spassword;
         public bool Registered = false;
         private TcpClient ircsock;
         private Stream mystream;
@@ -53,7 +54,7 @@ namespace kIRCPlugin
         public List<CPerform> cperform;
         public List<kIRC_Commands> custom_commands;
 
-        public kIRCCore(string host, int port, string nick, string user, string realname, string channel, string password)
+        public kIRCCore(string host, int port, string nick, string user, string realname, string channel, string password, string spassword)
         {
             ircsock = new TcpClient();
             ircsock.Connect(host, port);
@@ -65,10 +66,13 @@ namespace kIRCPlugin
             _host = host;
             _port = port;
             _user = user;
+            _spassword = spassword;
             _realname = realname;
             _password = password;
             _channel = channel;
             this.Send("NICK " + this._nick);
+            if (!String.IsNullOrEmpty(_spassword))
+                this.Send("PASS " + _spassword);
             this.Send("USER " + this._user + " - - :" + this._realname);
         }
         public bool Disconnect(string reason = "Bye!")
