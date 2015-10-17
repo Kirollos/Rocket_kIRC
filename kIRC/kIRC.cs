@@ -144,7 +144,6 @@ namespace kIRCPlugin
         {
             if (this.State != PluginState.Loaded)
                 return;
-            //myirc.parse(myirc.Read(), this); // Made a thread instead :(
 
             /*if (kIRCVersionChecker.lastchecked.AddHours(1) < DateTime.Now)
             {
@@ -160,7 +159,15 @@ namespace kIRCPlugin
                     if (!reff.execute)
                         continue;
 
-                    InputText myinputtext = Steam.ConsoleInput.onInputText;
+                    if (reff.command == "__kick")
+                    {
+                        UnturnedPlayer.FromName(reff.parameters[0]).Kick(reff.parameters[1]);
+                        reff.onexecev("");
+                        this.do_command.Remove(this.do_command[i]);
+                        continue;
+                    }
+
+                    InputText myinputtext = CommandWindow.ConsoleInput.onInputText;
 
                     reff.onfireev();
                     // Getting response from console
@@ -195,7 +202,7 @@ namespace kIRCPlugin
             }
         }
 
-        private void Unturned_OnPlayerChatted(UnturnedPlayer player, ref Color color, string message, EChatMode chatMode)
+        private void Unturned_OnPlayerChatted(UnturnedPlayer player, ref Color color, string message, EChatMode chatMode, ref bool cancel)
         {
             if (!myirc.isConnected) return;
             if (message[0] == '/') return; // Blocking commands from echoing in the channel

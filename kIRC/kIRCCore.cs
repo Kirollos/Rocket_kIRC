@@ -456,10 +456,10 @@ namespace kIRCPlugin
                     else if (cmd == "players" && IsVoice(user, false))
                     {
                         string playerlist = "";
-                        for(int i = 0; i < Steam.Players.Count; i++)
+                        for(int i = 0; i < Provider.Players.Count; i++)
                         {
-                            playerlist += Steam.Players[i].SteamPlayerID.CharacterName/* + ", "*/;
-                            if (i != (Steam.Players.Count - 1))
+                            playerlist += Provider.Players[i].SteamPlayerID.CharacterName/* + ", "*/;
+                            if (i != (Provider.Players.Count - 1))
                                 playerlist += ", ";
                         }
                         //this.Say(this._channel, "Connected Players[" + Steam.Players.Count + "/"+Steam.MaxPlayers+"]: " + playerlist);
@@ -469,8 +469,8 @@ namespace kIRCPlugin
                             {"irc_usernick", user},
                             {"irc_userident", ident},
                             {"irc_userhost", host},
-                            {"players_amount", Steam.Players.Count.ToString()},
-                            {"players_max", Steam.MaxPlayers.ToString()},
+                            {"players_amount", Provider.Players.Count.ToString()},
+                            {"players_max", Provider.MaxPlayers.ToString()},
                             {"players_list", playerlist}
                         });
                     }
@@ -577,7 +577,7 @@ namespace kIRCPlugin
                                 this.Say(this._channel, "[ERROR] Player " + pname + " not found.");
                             else
                             {
-                                UnturnedPlayer.FromName(pname).Kick(reason);
+                                /*UnturnedPlayer.FromName(pname).Kick(reason);
                                 //this.Say(this._channel, "[SUCCESS] Player " + pname + " is kicked!");
                                 kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_kicksuccess", new Dictionary<string, string>()
                                 {
@@ -588,7 +588,29 @@ namespace kIRCPlugin
                                     {"irc_channel", this._channel},
                                     {"irc_targetnick", pname},
                                     {"irc_kickreason", reason}
+                                });*/
+                                kIRC_PushCommand pcmd = new kIRC_PushCommand();
+                                pcmd.command = "__kick";
+                                pcmd.parameters = new string[] { pname, reason };
+                                pcmd.extradata.Add("Syntax", "");
+                                pcmd.onfire(() => {});
+                                pcmd.onexec((string response) =>
+                                {
+                                    kIRCTranslate.IRC_SayTranslation(this, this._channel, "irc_kicksuccess", new Dictionary<string, string>()
+                                    {
+                                        {"time", DateTime.Now.ToString()},
+                                        {"irc_usernick", user},
+                                        {"irc_userident", ident},
+                                        {"irc_userhost", host},
+                                        {"irc_channel", this._channel},
+                                        {"irc_targetnick", pname},
+                                        {"irc_kickreason", reason}
+                                    });
                                 });
+
+                                pcmd.execute = true;
+
+                                pcmd.push(unturnedclass); // Sends it to the main unturned thread
                             }
                         }
                     }

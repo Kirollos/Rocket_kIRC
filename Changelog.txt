@@ -1,4 +1,4 @@
-V1.0:
+﻿V1.0:
 
 - Initial release.
 
@@ -53,3 +53,8 @@ V1.6.6:
 V1.6.7
 
 - Added server password support.
+
+V1.6.7.5
+
+- Fixed something w/ kick command
+- Updated to latest rocket, pls stop breaking my plugin kthx
